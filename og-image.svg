@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1E3B2E"/>
+      <stop offset="1" stop-color="#14261D"/>
+    </linearGradient>
+    <pattern id="grid" width="60" height="60" patternUnits="userSpaceOnUse">
+      <path d="M0 0H60V60" fill="none" stroke="#F6F1E6" stroke-opacity="0.07" stroke-width="1"/>
+    </pattern>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <rect width="1200" height="630" fill="url(#grid)"/>
+  <polygon points="820,0 1200,0 1200,630 620,630" fill="#C1592E" opacity="0.12"/>
+  <polyline points="780,40 1120,40 1160,120 1160,560" fill="none" stroke="#C1592E" stroke-width="3" stroke-dasharray="10 8" opacity="0.55"/>
+  <circle cx="1160" cy="560" r="6" fill="#E8A57D"/>
+  <circle cx="780" cy="40" r="6" fill="#E8A57D"/>
+  <text x="90" y="255" font-family="Georgia, 'Times New Roman', serif" font-size="88" font-weight="600" fill="#F6F1E6">GiaHuy Land</text>
+  <text x="90" y="320" font-family="Georgia, 'Times New Roman', serif" font-size="34" fill="#E8A57D">Đất nền Hà An – Quảng Yên</text>
+  <text x="90" y="380" font-family="Arial, sans-serif" font-size="24" fill="#CFC8B4">Sổ đỏ trao tay · Pháp lý minh bạch · Gần cầu Bạch Đằng</text>
+  <rect x="90" y="430" width="230" height="52" rx="26" fill="#C1592E"/>
+  <text x="205" y="464" font-family="Arial, sans-serif" font-size="22" font-weight="600" fill="#F6F1E6" text-anchor="middle">Nhận báo giá</text>
+</svg>

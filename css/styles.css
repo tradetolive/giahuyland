@@ -1,0 +1,120 @@
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400..700&family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap');
+
+:root {
+  --color-ink: #211c14;
+  --color-cream: #f6f1e6;
+  --color-sand: #ece2c8;
+  --color-forest: #1e3b2e;
+  --color-forest-light: #2f5843;
+  --color-clay: #c1592e;
+  --color-clay-light: #e8a57d;
+  --color-gold: #c89b3c;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Be Vietnam Pro', system-ui, sans-serif;
+  background-color: var(--color-cream);
+  color: var(--color-ink);
+  position: relative;
+}
+
+.font-display {
+  font-family: 'Fraunces', Georgia, serif;
+}
+
+/* Fixed, non-scrolling grain overlay — kept off scrolling containers per perf guidance */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 60;
+  opacity: 0.035;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+::selection {
+  background-color: var(--color-clay);
+  color: var(--color-cream);
+}
+
+/* Scroll-reveal primitive driven by IntersectionObserver in js/main.js */
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+.reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+.reveal-delay-1 { transition-delay: 0.08s; }
+.reveal-delay-2 { transition-delay: 0.16s; }
+.reveal-delay-3 { transition-delay: 0.24s; }
+.reveal-delay-4 { transition-delay: 0.32s; }
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal, html { transition: none !important; scroll-behavior: auto !important; }
+  .reveal { opacity: 1; transform: none; }
+}
+
+/* Diagonal section dividers — grid-breaking edges instead of straight rules */
+.diagonal-down {
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 3.5vw), 0 100%);
+}
+.diagonal-up {
+  clip-path: polygon(0 3.5vw, 100% 0, 100% 100%, 0 100%);
+}
+
+/* Cadastral-map hero backdrop */
+.survey-grid {
+  background-image:
+    linear-gradient(rgba(246, 241, 230, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(246, 241, 230, 0.08) 1px, transparent 1px);
+  background-size: 34px 34px;
+}
+
+@keyframes float-slow {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-14px) rotate(1.2deg); }
+}
+.animate-float-slow {
+  animation: float-slow 7s ease-in-out infinite;
+}
+
+@keyframes dash {
+  to { stroke-dashoffset: -200; }
+}
+.animate-dash {
+  stroke-dasharray: 8 10;
+  animation: dash 6s linear infinite;
+}
+
+.btn-spinner {
+  border: 2px solid rgba(246, 241, 230, 0.35);
+  border-top-color: var(--color-cream);
+  border-radius: 50%;
+  width: 1.1rem;
+  height: 1.1rem;
+  animation: spin 0.7s linear infinite;
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Custom scrollbar to match the palette instead of the OS default */
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-cream);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-forest-light);
+  border-radius: 999px;
+}

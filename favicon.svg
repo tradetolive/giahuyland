@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <path d="M8 8h36l12 12v36H8z" fill="#1E3B2E"/>
+  <path d="M8 8h36l12 12H8z" fill="#2F5843"/>
+  <text x="32" y="42" font-family="Georgia, 'Times New Roman', serif" font-size="26" font-weight="600" fill="#F6F1E6" text-anchor="middle">GH</text>
+</svg>

@@ -1,0 +1,73 @@
+/**
+ * GiaHuy Land — mock product data.
+ * Simulated JSON data source for land-lot listings, kept in client-side JS
+ * per the zero-cost static hosting requirement (no server database).
+ */
+const GIAHUY_PRODUCTS = [
+  {
+    id: 'A12',
+    name: 'Lô A12 – Khu đô thị ven sông Hà An',
+    area: 84.5,
+    frontage: 5.6,
+    price: 1.72,
+    direction: 'Đông Nam',
+    legal: 'Sổ đỏ chính chủ, thổ cư 100%',
+    highlight: 'Cách trục đường 40m 120m, gần trường tiểu học',
+    accent: 'forest',
+  },
+  {
+    id: 'B07',
+    name: 'Lô B07 – Liền kề trục đường 40m',
+    area: 96.3,
+    frontage: 6,
+    price: 2.15,
+    direction: 'Nam',
+    legal: 'Sổ đỏ chính chủ, thổ cư 100%',
+    highlight: 'Mặt đường quy hoạch 40m, tiềm năng kinh doanh',
+    accent: 'clay',
+  },
+  {
+    id: 'C21',
+    name: 'Lô C21 – Gần cầu Bạch Đằng',
+    area: 112.8,
+    frontage: 7.2,
+    price: 2.68,
+    direction: 'Đông',
+    legal: 'Sổ đỏ chính chủ, đã tách thửa',
+    highlight: 'Chỉ 6 phút ra cầu Bạch Đằng, thuận kết nối Hải Phòng',
+    accent: 'gold',
+  },
+  {
+    id: 'A05',
+    name: 'Lô A05 – Góc hai mặt tiền',
+    area: 138.4,
+    frontage: 8,
+    price: 3.42,
+    direction: 'Tây Nam',
+    legal: 'Sổ đỏ chính chủ, thổ cư 100%',
+    highlight: 'Vị trí góc hiếm, phù hợp xây shop nhà phố',
+    accent: 'forest',
+  },
+  {
+    id: 'D14',
+    name: 'Lô D14 – Sát công viên trung tâm',
+    area: 75.9,
+    frontage: 5,
+    price: 1.58,
+    direction: 'Bắc',
+    legal: 'Sổ đỏ chính chủ, thổ cư 100%',
+    highlight: 'Đối diện công viên trung tâm khu đô thị',
+    accent: 'clay',
+  },
+  {
+    id: 'B22',
+    name: 'Lô B22 – View đầm sinh thái',
+    area: 121.6,
+    frontage: 6.8,
+    price: 2.91,
+    direction: 'Đông Nam',
+    legal: 'Sổ đỏ chính chủ, đã tách thửa',
+    highlight: 'Hướng view đầm sinh thái, không bị che chắn',
+    accent: 'gold',
+  },
+];
