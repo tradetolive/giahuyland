@@ -74,7 +74,7 @@
   function renderProducts(filter) {
     var grid = document.getElementById('products-grid');
     if (!grid) return;
-    var list = GIAHUY_PRODUCTS.filter(function (p) {
+    var list = (window.GIAHUY_PRODUCTS || []).filter(function (p) {
       if (filter === 'under2') return p.price < 2;
       if (filter === '2to3') return p.price >= 2 && p.price <= 3;
       if (filter === 'over3') return p.price > 3;
@@ -90,7 +90,7 @@
   function populatePlotSelect() {
     var select = document.getElementById('lo_dat_quan_tam');
     if (!select) return;
-    GIAHUY_PRODUCTS.forEach(function (p) {
+    (window.GIAHUY_PRODUCTS || []).forEach(function (p) {
       var opt = document.createElement('option');
       opt.value = p.id;
       opt.textContent = p.name + ' — ' + p.price.toFixed(2) + ' tỷ';
@@ -100,6 +100,20 @@
     opt.value = 'chua-ro';
     opt.textContent = 'Chưa chọn, cần tư vấn thêm';
     select.appendChild(opt);
+  }
+
+  // Load products from Supabase
+  async function loadProducts() {
+    try {
+      const products = await fetchProductsFromSupabase();
+      if (products && products.length > 0) {
+        window.GIAHUY_PRODUCTS = products;
+        renderProducts('all');
+        populatePlotSelect();
+      }
+    } catch (err) {
+      console.error('Lỗi load products:', err);
+    }
   }
 
   function initFilters() {
@@ -272,8 +286,7 @@
   }
 
   document.addEventListener('DOMContentLoaded', function () {
-    populatePlotSelect();
-    renderProducts('all');
+    loadProducts();
     initFilters();
     initPlotLinks();
     initNav();
