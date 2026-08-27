@@ -35,7 +35,7 @@
   function setLoginStatus(message, type = 'neutral') {
     const node = $('#login-status');
     node.textContent = message;
-    node.className = `mt-4 text-sm ${type === 'error' ? 'text-red-600' : 'text-slate-600'}`;
+    node.className = `mt-4 text-sm ${type === 'error' ? 'text-red-600' : type === 'success' ? 'text-emerald-700' : 'text-slate-600'}`;
   }
 
   function slugify(value) {
@@ -337,6 +337,40 @@
     }
   }
 
+  /**
+   * Gửi liên kết khôi phục bằng Supabase Auth. Thông báo luôn trung tính để
+   * không tiết lộ email nào đã tồn tại hoặc có quyền quản trị.
+   */
+  async function requestPasswordRecovery() {
+    if (!supabaseClient) {
+      setLoginStatus('Không tải được Supabase. Vui lòng tải lại trang rồi thử lại.', 'error');
+      return;
+    }
+
+    const emailField = $('#admin-email');
+    const email = emailField.value.trim();
+    if (!email || !emailField.checkValidity()) {
+      setLoginStatus('Hãy nhập đúng email quản trị trước khi yêu cầu khôi phục mật khẩu.', 'error');
+      emailField.focus();
+      return;
+    }
+
+    const button = $('#forgot-password-button');
+    button.disabled = true;
+    setLoginStatus('Đang gửi liên kết khôi phục...');
+    try {
+      // GitHub Pages chỉ phục vụ tĩnh, nên URL đích được tạo từ trang admin đang mở.
+      const redirectTo = new URL('reset-password.html', window.location.href).href;
+      const { error } = await supabaseClient.auth.resetPasswordForEmail(email, { redirectTo });
+      if (error) throw error;
+      setLoginStatus('Nếu email này có tài khoản, Supabase đã gửi liên kết đặt lại mật khẩu. Hãy kiểm tra Hộp thư đến và thư mục Spam.', 'success');
+    } catch (error) {
+      setLoginStatus(`Không thể gửi liên kết khôi phục: ${error.message}`, 'error');
+    } finally {
+      button.disabled = false;
+    }
+  }
+
   async function signOut() {
     await supabaseClient.auth.signOut();
     state.session = null;
@@ -348,6 +382,7 @@
 
   function bindEvents() {
     $('#login-form').addEventListener('submit', signIn);
+    $('#forgot-password-button').addEventListener('click', requestPasswordRecovery);
     $('#listing-form').addEventListener('submit', saveListing);
     // Giữ xác thực HTML5, đồng thời hiển thị lỗi trong vùng trạng thái dễ nhận thấy.
     $('#listing-form').addEventListener('invalid', (event) => {

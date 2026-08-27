@@ -25,3 +25,14 @@
 - [x] Kiểm tra Messenger: mở đúng cuộc trò chuyện đích và sao chép tên + URL bài đăng, không tự gửi tin nhắn.
 - [x] Kiểm tra card: ảnh/sơ đồ và tiêu đề đều render thành link nội bộ theo slug của listing.
 - [ ] Hợp nhất, deploy GitHub Pages và xác minh các URL production.
+
+## Khôi phục mật khẩu quản trị
+
+- [x] Rà soát luồng Supabase Auth, redirect URL và trạng thái session phục hồi.
+- [x] Bổ sung màn hình yêu cầu email khôi phục tại `/admin/`.
+- [x] Bổ sung trang đặt mật khẩu mới, chỉ cho phép session `recovery` hợp lệ cập nhật mật khẩu.
+- [x] Cấu hình Redirect URL production và kiểm thử Supabase chấp nhận yêu cầu recovery với HTTP 200. URL production: `https://tradetolive.github.io/giahuyland/admin/reset-password.html`.
+- [x] Chủ dự án đã xác nhận lưu Redirect URL; một email khôi phục thử được gửi đến email admin mà không thay đổi mật khẩu.
+- [x] Kết nối điều khiển My Browser từng hết thời gian phản hồi; chủ dự án đã tự lưu Redirect URL và xác nhận lại bằng chat.
+- [ ] Kiểm thử thủ công trang recovery production bằng chính email thử sau khi deploy; không tạo user thử hoặc đổi mật khẩu hiện tại trước khi người dùng chủ động xác nhận.
+- [x] Cập nhật hướng dẫn vận hành và kiểm tra bảo mật; chờ xác nhận trước khi hợp nhất production.
