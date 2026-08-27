@@ -1,6 +1,8 @@
 # GitHub Pages deployment
 
-Website được publish từ `main` qua workflow `.github/workflows/deploy-pages.yml`. Artifact public loại trừ thư mục `admin/` vì trang này chưa có xác thực server-side; không nên public giao diện xóa/thêm sản phẩm khi chưa hoàn tất Supabase Auth và RLS.
+Website được publish từ `main` qua workflow `.github/workflows/deploy-pages.yml`. Artifact bao gồm thư mục `admin/`, do dashboard đã dùng Supabase Auth và Row Level Security (RLS) để xác thực và cấp quyền ở lớp dữ liệu. Dashboard sẽ có địa chỉ `https://tradetolive.github.io/giahuyland/admin/` sau khi workflow hoàn tất.
+
+> Đường dẫn `/admin/` không phải lớp bảo mật. Trang được đặt `noindex, nofollow`, nhưng chỉ Supabase Auth kết hợp RLS mới quyết định ai có thể đọc, tạo, sửa, xóa listing hoặc truy cập tài liệu private.
 
 ## Kích hoạt lần đầu
 
@@ -9,6 +11,14 @@ Website được publish từ `main` qua workflow `.github/workflows/deploy-page
 3. Mở tab **Actions** và chờ workflow “Deploy static site to GitHub Pages” hoàn tất.
 4. Site sẽ ở `https://tradetolive.github.io/giahuyland/`.
 5. Trong **Settings → Pages**, bật **Enforce HTTPS** nếu tùy chọn xuất hiện.
+
+## Trang quản trị
+
+1. Sau khi deployment thành công, mở `https://tradetolive.github.io/giahuyland/admin/`.
+2. Đăng nhập bằng tài khoản đã tạo trong **Supabase → Authentication → Users** và đã được thêm vào `public.admin_users`.
+3. Lưu ở trạng thái **Bản nháp** để chỉ quản trị viên nhìn thấy. Chỉ chọn **Xuất bản** sau khi đã đối chiếu thông tin, giá, vị trí và nội dung pháp lý công khai.
+4. Ảnh cover/thư viện được lưu ở bucket public `property-media`; ảnh sổ đỏ hoặc PDF phải dùng `property-documents`, là bucket private mở qua signed URL có thời hạn.
+5. Không đưa mật khẩu, `service_role` key, CCCD hay thông tin chủ sở hữu vào website, source code hay trường hiển thị công khai.
 
 ## Biểu mẫu liên hệ
 
