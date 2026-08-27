@@ -1,0 +1,46 @@
+<!doctype html>
+<!-- Trang bài viết GiaHuy Land: tông xanh rừng/kem, đọc dài thoáng và có lối quay lại rõ ràng; dữ liệu chỉ đến từ content_posts published. -->
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <meta name="referrer" content="strict-origin-when-cross-origin" />
+  <title>Bài viết | GiaHuy Land</title>
+  <meta id="article-description" name="description" content="Bài viết chuyên đề từ GiaHuy Land." />
+  <link id="article-canonical" rel="canonical" href="https://tradetolive.github.io/giahuyland/bai-viet.html" />
+  <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./css/styles.css" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme: { extend: { colors: { ink: '#211c14', cream: '#f6f1e6', sand: '#ece2c8', forest: { DEFAULT: '#1e3b2e', light: '#2f5843' }, clay: { DEFAULT: '#c1592e', light: '#e8a57d' } }, fontFamily: { display: ['Fraunces', 'Georgia', 'serif'], sans: ['Be Vietnam Pro', 'system-ui', 'sans-serif'] } } } };
+  </script>
+</head>
+<body class="bg-cream font-sans text-ink antialiased">
+  <header class="border-b border-ink/10 bg-cream/95">
+    <div class="mx-auto flex h-20 max-w-5xl items-center justify-between px-5 sm:px-8">
+      <a href="./" class="flex items-center gap-2.5 font-display text-xl font-semibold text-forest"><span class="flex h-9 w-9 items-center justify-center bg-forest text-sm font-semibold text-cream">GH</span>GiaHuy Land</a>
+      <a href="./#diem-dau" class="text-sm font-semibold text-forest transition hover:text-clay">← Về trang chủ</a>
+    </div>
+  </header>
+  <main>
+    <section id="article-loading" class="mx-auto max-w-3xl px-5 py-20 sm:px-8"><p class="text-sm text-ink/60">Đang tải bài viết…</p></section>
+    <article id="article-content" class="mx-auto hidden max-w-3xl px-5 py-14 sm:px-8 sm:py-20">
+      <p id="article-eyebrow" class="text-xs font-semibold uppercase tracking-wider text-clay"></p>
+      <h1 id="article-title" class="mt-4 font-display text-4xl leading-[1.08] text-ink sm:text-5xl"></h1>
+      <p id="article-excerpt" class="mt-6 text-lg leading-8 text-ink/70"></p>
+      <img id="article-cover" class="mt-9 hidden h-auto w-full rounded-[2rem] object-cover shadow-xl shadow-ink/10" alt="" />
+      <div id="article-body" class="mt-10 space-y-6 text-base leading-8 text-ink/80"></div>
+      <div class="mt-12 border-t border-ink/10 pt-7"><a href="./#san-pham" class="inline-flex items-center gap-2 rounded-full bg-forest px-5 py-3 text-sm font-semibold text-cream transition hover:bg-ink">Xem lô đất đang mở bán <span aria-hidden="true">→</span></a></div>
+    </article>
+    <section id="article-not-found" class="mx-auto hidden max-w-3xl px-5 py-20 sm:px-8"><p class="text-xs font-semibold uppercase tracking-wider text-clay">Không tìm thấy bài viết</p><h1 class="mt-4 font-display text-4xl text-ink">Nội dung này không có sẵn.</h1><p class="mt-5 leading-7 text-ink/70">Bài viết có thể chưa được xuất bản hoặc đường dẫn không hợp lệ.</p><a href="./" class="mt-8 inline-flex rounded-full bg-forest px-5 py-3 text-sm font-semibold text-cream">Về trang chủ</a></section>
+  </main>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./js/supabase.js"></script>
+  <script src="./js/editorial-data.js"></script>
+  <script src="./js/editorial-detail.js"></script>
+</body>
+</html>

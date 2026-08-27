@@ -13,7 +13,7 @@
     ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
     : null;
 
-  const state = { session: null, listings: [], editing: null };
+  const state = { session: null, listings: [], editing: null, contentPosts: [], editingContentPost: null };
   const $ = (selector) => document.querySelector(selector);
 
   function escapeHtml(value) {
@@ -72,6 +72,26 @@
     ['cover-file', 'gallery-files', 'document-file'].forEach(removeFileInputValue);
   }
 
+  function contentPostUrl(post) {
+    const url = new URL('../bai-viet.html', window.location.href);
+    url.searchParams.set('slug', post.slug || '');
+    return url.href;
+  }
+
+  function resetContentPostForm() {
+    state.editingContentPost = null;
+    $('#content-post-form').reset();
+    $('#content-post-id').value = '';
+    $('#content-post-order').value = '100';
+    $('#content-post-form-title').textContent = 'Tạo bài viết mới';
+    $('#save-content-post-label').textContent = 'Lưu bài viết';
+    $('#cancel-content-post-edit').hidden = true;
+    $('#content-post-current-cover').hidden = true;
+    $('#content-post-current-cover').textContent = '';
+    delete $('#content-post-slug').dataset.edited;
+    removeFileInputValue('content-post-cover-file');
+  }
+
   function setEditing(listingId) {
     const listing = state.listings.find((item) => item.id === listingId);
     if (!listing) return;
@@ -97,6 +117,29 @@
     $('#current-gallery').textContent = `${Array.isArray(listing.gallery_paths) ? listing.gallery_paths.length : 0} ảnh thư viện`;
     $('#current-document').textContent = listing.legal_document_name ? `Tài liệu private: ${listing.legal_document_name}` : 'Chưa có ảnh sổ đỏ/tài liệu';
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function setEditingContentPost(postId) {
+    const post = state.contentPosts.find((item) => item.id === postId);
+    if (!post) return;
+    state.editingContentPost = post;
+    $('#content-post-id').value = post.id;
+    $('#content-post-title').value = post.title || '';
+    $('#content-post-slug').value = post.slug || '';
+    $('#content-post-status').value = post.status || 'draft';
+    $('#content-post-category').value = post.category || 'insight';
+    $('#content-post-slot').value = post.home_slot || '';
+    $('#content-post-order').value = post.display_order == null ? '100' : post.display_order;
+    $('#content-post-eyebrow').value = post.eyebrow || '';
+    $('#content-post-excerpt').value = post.excerpt || '';
+    $('#content-post-body').value = post.body || '';
+    $('#content-post-form-title').textContent = `Chỉnh sửa: ${post.title}`;
+    $('#save-content-post-label').textContent = 'Lưu thay đổi';
+    $('#cancel-content-post-edit').hidden = false;
+    const coverInfo = $('#content-post-current-cover');
+    coverInfo.textContent = post.cover_image_path ? 'Đã có ảnh cover public. Chọn ảnh mới để thay thế.' : 'Chưa có ảnh cover.';
+    coverInfo.hidden = false;
+    window.scrollTo({ top: $('#content-post-form').getBoundingClientRect().top + window.scrollY - 24, behavior: 'smooth' });
   }
 
   async function checkAdmin(session) {
@@ -141,7 +184,7 @@
       }
       state.session = session;
       showDashboard(session);
-      await loadListings();
+      await Promise.all([loadListings(), loadContentPosts()]);
     } catch (error) {
       showLogin();
       const message = error.message && error.message.includes('admin_users')
@@ -167,6 +210,53 @@
     }
     state.listings = data || [];
     renderListings();
+  }
+
+  async function loadContentPosts() {
+    const list = $('#content-post-list');
+    list.innerHTML = '<p class="rounded-2xl border border-dashed border-slate-300 bg-white px-5 py-8 text-sm text-slate-500">Đang tải bài viết…</p>';
+    const { data, error } = await supabaseClient
+      .from('content_posts')
+      .select('*')
+      .order('updated_at', { ascending: false });
+    if (error) {
+      list.innerHTML = '';
+      const missingTable = /content_posts|relation .* does not exist/i.test(error.message || '');
+      list.innerHTML = `<div class="rounded-2xl border border-dashed border-amber-300 bg-amber-50 px-5 py-6 text-sm leading-6 text-amber-900">${missingTable ? 'Chưa cài mô hình bài viết biên tập. Hãy chạy migration supabase/migrations/20260827_editorial_content_posts.sql trong Supabase SQL Editor rồi bấm Làm mới.' : `Không thể tải bài viết: ${escapeHtml(error.message)}`}</div>`;
+      return;
+    }
+    state.contentPosts = data || [];
+    renderContentPosts();
+  }
+
+  function categoryLabel(category) {
+    const labels = { brand: 'Giới thiệu thương hiệu', insight: 'Góc nhìn đầu tư', advantage: 'Lợi thế khu vực', guide: 'Hướng dẫn', 'market-update': 'Cập nhật thị trường' };
+    return labels[category] || 'Bài viết';
+  }
+
+  function homeSlotLabel(slot) {
+    const labels = { hero: 'Hero giới thiệu', 'pain-points': 'Điểm nghẽn quy hoạch', advantages: 'Lợi thế Hà An' };
+    return labels[slot] || 'Chỉ trang chi tiết';
+  }
+
+  function renderContentPosts() {
+    const list = $('#content-post-list');
+    if (state.contentPosts.length === 0) {
+      list.innerHTML = '<div class="rounded-2xl border border-dashed border-slate-300 bg-white px-6 py-12 text-center"><p class="font-semibold text-slate-700">Chưa có bài viết biên tập.</p><p class="mt-2 text-sm text-slate-500">Tạo bài viết đầu tiên hoặc chạy migration để chuyển các nội dung tĩnh hiện có.</p></div>';
+      return;
+    }
+    list.innerHTML = state.contentPosts.map((post) => {
+      const isPublished = post.status === 'published';
+      const statusClass = isPublished ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-amber-50 text-amber-700 border-amber-200';
+      const detailLink = escapeHtml(contentPostUrl(post));
+      return `<article class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+        <div class="flex items-start justify-between gap-4"><div><p class="text-xs font-bold uppercase tracking-[0.14em] text-slate-400">${escapeHtml(categoryLabel(post.category))}</p><h4 class="mt-1 font-semibold text-slate-900">${escapeHtml(post.title)}</h4><p class="mt-1 text-sm text-slate-500">${escapeHtml(homeSlotLabel(post.home_slot))} · Thứ tự ${Number(post.display_order || 0)}</p></div><span class="shrink-0 rounded-full border px-2.5 py-1 text-xs font-semibold ${statusClass}">${isPublished ? 'Đã xuất bản' : 'Bản nháp'}</span></div>
+        <p class="mt-3 line-clamp-2 text-sm leading-6 text-slate-600">${escapeHtml(post.excerpt || 'Chưa có tóm tắt.')}</p>
+        <div class="mt-4 flex flex-wrap gap-2"><button type="button" data-content-action="edit" data-id="${post.id}" class="flex-1 rounded-xl border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700 transition hover:border-[#1e3b2e] hover:text-[#1e3b2e]">Chỉnh sửa</button>${isPublished ? `<a href="${detailLink}" target="_blank" rel="noopener noreferrer" class="rounded-xl border border-slate-300 px-3 py-2 text-sm font-semibold text-forest transition hover:border-forest">Xem</a>` : ''}<button type="button" data-content-action="delete" data-id="${post.id}" class="rounded-xl border border-red-200 px-3 py-2 text-sm font-semibold text-red-700 transition hover:bg-red-50">Xóa</button></div>
+      </article>`;
+    }).join('');
+    list.querySelectorAll('[data-content-action="edit"]').forEach((button) => button.addEventListener('click', () => setEditingContentPost(button.dataset.id)));
+    list.querySelectorAll('[data-content-action="delete"]').forEach((button) => button.addEventListener('click', () => deleteContentPost(button.dataset.id)));
   }
 
   function renderListings() {
@@ -283,6 +373,63 @@
     }
   }
 
+  async function saveContentPost(event) {
+    event.preventDefault();
+    if (!state.session) return;
+    const submit = $('#save-content-post-button');
+    submit.disabled = true;
+    setStatus('Đang kiểm tra và lưu bài viết…');
+    try {
+      const title = $('#content-post-title').value.trim();
+      const slug = ($('#content-post-slug').value.trim() || slugify(title));
+      if (!slug) throw new Error('Hãy nhập tiêu đề hoặc slug hợp lệ.');
+      const coverFile = $('#content-post-cover-file').files[0];
+      assertFile(coverFile, IMAGE_TYPES, 'Ảnh cover bài viết');
+
+      const postId = state.editingContentPost ? state.editingContentPost.id : crypto.randomUUID();
+      let coverImagePath = state.editingContentPost?.cover_image_path || null;
+      if (coverFile) coverImagePath = await uploadFile('property-media', coverFile, `${state.session.user.id}/content/${postId}`);
+
+      const payload = {
+        id: postId,
+        slug,
+        title,
+        eyebrow: $('#content-post-eyebrow').value.trim(),
+        excerpt: $('#content-post-excerpt').value.trim(),
+        body: $('#content-post-body').value.trim(),
+        category: $('#content-post-category').value,
+        home_slot: $('#content-post-slot').value || null,
+        display_order: Number($('#content-post-order').value),
+        status: $('#content-post-status').value,
+        cover_image_path: coverImagePath,
+        author_id: state.editingContentPost?.author_id || state.session.user.id,
+      };
+      const query = state.editingContentPost
+        ? supabaseClient.from('content_posts').update(payload).eq('id', postId)
+        : supabaseClient.from('content_posts').insert(payload);
+      const { error } = await query;
+      if (error) throw error;
+
+      // Chỉ dọn cover cũ sau khi cập nhật DB thành công để không mất ảnh đang hiển thị.
+      if (coverFile && state.editingContentPost?.cover_image_path && state.editingContentPost.cover_image_path !== coverImagePath) {
+        const { error: cleanupError } = await supabaseClient.storage.from('property-media').remove([state.editingContentPost.cover_image_path]);
+        if (cleanupError) console.warn('Không thể dọn ảnh cover cũ.', cleanupError);
+      }
+      setStatus(payload.status === 'published' ? 'Đã xuất bản bài viết. Khách có thể xem nội dung công khai.' : 'Đã lưu bản nháp. Khách truy cập chưa thể xem bài viết.', 'success');
+      resetContentPostForm();
+      await loadContentPosts();
+    } catch (error) {
+      const message = error.message || 'Lỗi không xác định.';
+      if (/content_posts_one_published_home_slot|duplicate key/i.test(message)) {
+        setStatus('Vị trí trang chủ này đã có một bài đang xuất bản. Hãy chuyển bài kia về Bản nháp hoặc bỏ vị trí trước khi xuất bản.', 'error');
+      } else {
+        setStatus(`Không thể lưu bài viết: ${message}`, 'error');
+      }
+    } finally {
+      submit.disabled = false;
+    }
+  }
+
   async function deleteListing(listingId) {
     const listing = state.listings.find((item) => item.id === listingId);
     if (!listing || !window.confirm(`Xóa “${listing.title}”? Ảnh đã tải cũng sẽ được dọn nếu có thể.`)) return;
@@ -300,6 +447,25 @@
       await loadListings();
     } catch (error) {
       setStatus(`Không thể xóa: ${error.message}`, 'error');
+    }
+  }
+
+  async function deleteContentPost(postId) {
+    const post = state.contentPosts.find((item) => item.id === postId);
+    if (!post || !window.confirm(`Xóa bài viết “${post.title}”? Ảnh cover cũng sẽ được dọn nếu có thể.`)) return;
+    setStatus('Đang xóa bài viết…');
+    try {
+      const { error } = await supabaseClient.from('content_posts').delete().eq('id', postId);
+      if (error) throw error;
+      if (post.cover_image_path) {
+        const { error: cleanupError } = await supabaseClient.storage.from('property-media').remove([post.cover_image_path]);
+        if (cleanupError) console.warn('Không thể dọn ảnh cover bài viết.', cleanupError);
+      }
+      if (state.editingContentPost?.id === postId) resetContentPostForm();
+      setStatus('Đã xóa bài viết. Nếu một tệp không dọn được, bạn có thể xóa thủ công trong Supabase Storage.', 'success');
+      await loadContentPosts();
+    } catch (error) {
+      setStatus(`Không thể xóa bài viết: ${error.message}`, 'error');
     }
   }
 
@@ -375,7 +541,10 @@
     await supabaseClient.auth.signOut();
     state.session = null;
     state.listings = [];
+    state.contentPosts = [];
     resetForm();
+    resetContentPostForm();
+    $('#content-post-list').innerHTML = '<p class="rounded-2xl border border-dashed border-slate-300 bg-white px-5 py-8 text-sm text-slate-500">Đăng nhập để tải bài viết biên tập.</p>';
     showLogin();
     setLoginStatus('Bạn đã đăng xuất.');
   }
@@ -384,18 +553,30 @@
     $('#login-form').addEventListener('submit', signIn);
     $('#forgot-password-button').addEventListener('click', requestPasswordRecovery);
     $('#listing-form').addEventListener('submit', saveListing);
+    $('#content-post-form').addEventListener('submit', saveContentPost);
     // Giữ xác thực HTML5, đồng thời hiển thị lỗi trong vùng trạng thái dễ nhận thấy.
     $('#listing-form').addEventListener('invalid', (event) => {
       const field = event.target;
       const label = document.querySelector(`label[for="${field.id}"]`);
       setStatus(`Vui lòng kiểm tra trường: ${label ? label.textContent : 'dữ liệu bài đăng'}.`, 'error');
     }, true);
+    $('#content-post-form').addEventListener('invalid', (event) => {
+      const field = event.target;
+      const label = document.querySelector(`label[for="${field.id}"]`);
+      setStatus(`Vui lòng kiểm tra trường: ${label ? label.textContent : 'dữ liệu bài viết'}.`, 'error');
+    }, true);
     $('#logout-button').addEventListener('click', signOut);
     $('#cancel-edit').addEventListener('click', resetForm);
+    $('#cancel-content-post-edit').addEventListener('click', resetContentPostForm);
+    $('#refresh-content-posts').addEventListener('click', loadContentPosts);
     $('#title').addEventListener('input', () => {
       if (!state.editing && !$('#slug').dataset.edited) $('#slug').value = slugify($('#title').value);
     });
     $('#slug').addEventListener('input', () => { $('#slug').dataset.edited = 'true'; });
+    $('#content-post-title').addEventListener('input', () => {
+      if (!state.editingContentPost && !$('#content-post-slug').dataset.edited) $('#content-post-slug').value = slugify($('#content-post-title').value);
+    });
+    $('#content-post-slug').addEventListener('input', () => { $('#content-post-slug').dataset.edited = 'true'; });
     $('#gallery-files').addEventListener('change', (event) => {
       $('#gallery-count').textContent = event.target.files.length ? `Đã chọn ${event.target.files.length} ảnh mới` : '';
     });

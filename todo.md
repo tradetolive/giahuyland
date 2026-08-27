@@ -37,3 +37,22 @@
 - [x] Hợp nhất và deploy GitHub Pages: workflow `33060212735` thành công; `/admin/`, trang recovery và hai file JavaScript đều phản hồi HTTP 200 trên production.
 - [ ] Kiểm thử thủ công trang recovery production bằng chính email thử sau khi deploy; không tạo user thử hoặc đổi mật khẩu hiện tại trước khi người dùng chủ động xác nhận. Kiểm tra trình duyệt tự động bị timeout nên chưa dùng để đánh giá UI sau tải JavaScript.
 - [x] Cập nhật hướng dẫn vận hành và kiểm tra bảo mật; chờ xác nhận trước khi hợp nhất production.
+
+## Bài viết biên tập và liên hệ theo listing
+
+- [ ] Kiểm kê ba khối nội dung tĩnh trên trang chủ, xác định dữ liệu/ảnh/link cần chuyển về mô hình bài viết quản trị.
+- [x] Thiết kế bảng `content_posts`, RLS và Storage theo nguyên tắc dashboard admin dùng bảng gốc, public chỉ đọc view `content_posts_public` có bài `published` và cột an toàn.
+- [x] Bổ sung biểu mẫu CRUD cho bài viết biên tập trong dashboard mà không làm thay đổi luồng listing hiện có.
+- [x] Bổ sung danh sách và trang chi tiết bài viết công khai theo slug, chỉ tải bài `published` qua view public.
+- [ ] Nghiên cứu đường dẫn chính thức Zalo/Messenger cho nội dung soạn sẵn; không hứa hẹn tự điền nếu nền tảng không hỗ trợ chat cá nhân.
+- [x] Kiểm thử quyền public: view trả 3 bài published; bảng gốc anonymous trả 401; yêu cầu `author_id` qua view trả 400. Kiểm tra render desktop/mobile và URL slug hợp lệ/không tồn tại đã đạt. Hướng dẫn vận hành đã cập nhật; dashboard CRUD cần người dùng xác nhận thao tác sau deploy.
+
+> Phạm vi đã chốt: chỉ triển khai quản trị nội dung tĩnh. GiaHuy Land đang sử dụng Facebook/Messenger cá nhân nên không triển khai tự điền hoặc tự gửi tin nhắn; giữ cơ chế sao chép link + mở chat hiện có.
+
+> Trạng thái migration: file `supabase/migrations/20260827_editorial_content_posts.sql` đã sẵn sàng để review/chạy. Thử mở SQL Editor qua My Browser bị timeout, nên chưa áp dụng bất kỳ DDL/RLS nào lên Supabase.
+
+> Kiểm thử sau migration: Data API anonymous trả HTTP 200 cho đúng 3 bài `published`, trả mảng rỗng khi lọc `draft`, bài theo slug hợp lệ trả 1 dòng và slug không tồn tại trả mảng rỗng. Preview trang chủ tải được; kiểm tra sau tải JavaScript bị timeout từ My Browser nên không dùng để đánh giá trực quan phần render động.
+
+> Hardening sau migration: `20260827_harden_content_posts_public_read.sql` đã được chủ dự án chạy. Public read hiện qua view `content_posts_public` chỉ có cột an toàn/bài published; bảng gốc anonymous trả HTTP 401 và `author_id` không tồn tại trong view.
+
+> Kiểm tra trực quan preview bằng Chromium headless: desktop giữ rõ tiêu đề, CTA và minh họa ở hero; mobile 390 px xếp tiêu đề/bản tóm tắt/CTA không tràn ngang. Không thay đổi liên hệ Zalo/Messenger trong đợt này.

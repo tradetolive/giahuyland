@@ -33,6 +33,20 @@ Luồng này dùng Supabase Auth và không cần SQL hay khóa `service_role`.
 
 > Nội dung phản hồi khi gửi email được thiết kế trung tính để không tiết lộ email nào tồn tại hoặc có quyền quản trị. Trang đặt lại mật khẩu không tự cấp quyền; tài khoản vẫn phải có trong `public.admin_users` mới vào được dashboard.
 
+### Quản lý nội dung biên tập
+
+Các nội dung giới thiệu, “Điểm nghẽn quy hoạch” và “Lợi thế Hà An” dùng bảng `content_posts`, tách biệt với listing bất động sản. Dashboard quản trị dùng bảng gốc; website public chỉ đọc view `content_posts_public`, vốn chỉ có bài published và không có `author_id`. Sau khi migrations `supabase/migrations/20260827_editorial_content_posts.sql` và `supabase/migrations/20260827_harden_content_posts_public_read.sql` đã được chủ dự án review và chạy trong **Supabase → SQL Editor**, cách vận hành như sau:
+
+1. Mở `/admin/` và đăng nhập.
+2. Cuộn đến khu vực **Nội dung biên tập**.
+3. Nhập tiêu đề, slug, nhãn phụ, tóm tắt và nội dung. Tách đoạn bằng một dòng trống.
+4. Chọn **Bản nháp** khi chưa kiểm chứng; chỉ chọn **Xuất bản** sau khi nội dung đã được rà soát.
+5. Nếu muốn thay một khối trên trang chủ, chọn đúng vị trí `Hero giới thiệu`, `Điểm nghẽn quy hoạch`, hoặc `Lợi thế Hà An`. Mỗi vị trí chỉ được có một bài đang xuất bản; cần hạ bài cũ về Bản nháp trước khi xuất bản bài thay thế.
+6. Nếu không chọn vị trí trang chủ, bài vẫn có URL riêng dạng `https://tradetolive.github.io/giahuyland/bai-viet.html?slug=<slug>` sau khi xuất bản.
+7. Chỉ tải ảnh marketing vào cover. Không tải sổ đỏ, CCCD, số điện thoại cá nhân hay tài liệu nhạy cảm vào ảnh public.
+
+> Các trang bài viết theo slug là template động trên GitHub Pages, nên mặc định không yêu cầu Google index riêng từng bài. Khi cần SEO index từng bài riêng, nên bổ sung bước tạo trang tĩnh và sitemap theo dữ liệu published trước khi thay đổi `noindex`.
+
 ## Biểu mẫu liên hệ
 
 Netlify Forms không hoạt động trên GitHub Pages. Website đã chuyển biểu mẫu sang `mailto:tatylic@gmail.com`, nên khi khách gửi biểu mẫu, thiết bị sẽ mở ứng dụng email mặc định với nội dung đã điền. Khi cần form lưu dữ liệu tự động, cần thêm một endpoint bảo mật (ví dụ Supabase Edge Function) và chính sách quyền truy cập phù hợp.
