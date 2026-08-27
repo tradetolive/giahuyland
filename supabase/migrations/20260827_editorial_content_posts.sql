@@ -53,13 +53,13 @@ for each row execute function public.set_content_post_timestamps();
 alter table public.content_posts enable row level security;
 
 revoke all on table public.content_posts from anon, authenticated;
-grant select on table public.content_posts to anon, authenticated;
+grant select on table public.content_posts to authenticated;
 grant insert, update, delete on table public.content_posts to authenticated;
 
-drop policy if exists "Public can read published content posts" on public.content_posts;
-create policy "Public can read published content posts"
-on public.content_posts for select to anon, authenticated
-using (status = 'published' or (select public.is_admin()));
+drop policy if exists "Admins can read content posts" on public.content_posts;
+create policy "Admins can read content posts"
+on public.content_posts for select to authenticated
+using ((select public.is_admin()));
 
 drop policy if exists "Admins can create content posts" on public.content_posts;
 create policy "Admins can create content posts"
@@ -76,6 +76,20 @@ drop policy if exists "Admins can delete content posts" on public.content_posts;
 create policy "Admins can delete content posts"
 on public.content_posts for delete to authenticated
 using ((select public.is_admin()));
+
+-- View công khai cố định cột an toàn và chỉ chứa bài đã xuất bản.
+-- View tạo bởi project owner dùng quyền definer; tuyệt đối giữ điều kiện status = 'published'.
+create or replace view public.content_posts_public
+with (security_barrier = true, security_invoker = false)
+as
+select
+  id, slug, title, eyebrow, excerpt, body, category, home_slot,
+  display_order, cover_image_path, status, published_at, created_at, updated_at
+from public.content_posts
+where status = 'published';
+
+revoke all on table public.content_posts_public from public, anon, authenticated;
+grant select on table public.content_posts_public to anon, authenticated;
 
 -- property-media đã là bucket public có policy upload/xóa chỉ dành cho admin.
 -- Không tạo bucket mới và không mở quyền upload cho khách truy cập.

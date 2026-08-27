@@ -50,3 +50,7 @@
 > Phạm vi đã chốt: chỉ triển khai quản trị nội dung tĩnh. GiaHuy Land đang sử dụng Facebook/Messenger cá nhân nên không triển khai tự điền hoặc tự gửi tin nhắn; giữ cơ chế sao chép link + mở chat hiện có.
 
 > Trạng thái migration: file `supabase/migrations/20260827_editorial_content_posts.sql` đã sẵn sàng để review/chạy. Thử mở SQL Editor qua My Browser bị timeout, nên chưa áp dụng bất kỳ DDL/RLS nào lên Supabase.
+
+> Kiểm thử sau migration: Data API anonymous trả HTTP 200 cho đúng 3 bài `published`, trả mảng rỗng khi lọc `draft`, bài theo slug hợp lệ trả 1 dòng và slug không tồn tại trả mảng rỗng. Preview trang chủ tải được; kiểm tra sau tải JavaScript bị timeout từ My Browser nên không dùng để đánh giá trực quan phần render động.
+
+> Hardening phát hiện sau migration: query anonymous ban đầu có thể yêu cầu cột `author_id` dù không hiển thị trên UI. Đã chuẩn bị migration `20260827_harden_content_posts_public_read.sql` để chuyển public read sang view `content_posts_public` chỉ chọn cột an toàn và chỉ bài published; chờ xác nhận trước khi chạy vì có thay đổi policy/grant.

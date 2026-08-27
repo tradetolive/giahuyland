@@ -162,7 +162,7 @@
     if (!supabaseClient) return null;
     try {
       const { data, error } = await supabaseClient
-        .from('content_posts')
+        .from('content_posts_public')
         .select('id, slug, title, eyebrow, excerpt, body, category, home_slot, display_order, cover_image_path, status, published_at, created_at')
         .eq('status', 'published')
         .order('display_order', { ascending: true })
@@ -184,7 +184,7 @@
     if (supabaseClient) {
       try {
         const { data, error } = await supabaseClient
-          .from('content_posts')
+          .from('content_posts_public')
           .select('id, slug, title, eyebrow, excerpt, body, category, home_slot, display_order, cover_image_path, status, published_at, created_at')
           .eq('status', 'published')
           .eq('slug', safeSlug)
