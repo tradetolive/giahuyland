@@ -1,6 +1,20 @@
 [build]
   publish = "."
 
+# Không công khai trang quản trị chưa có xác thực server-side.
+# Chỉ bật lại khi Supabase Auth + RLS đã được cấu hình và kiểm tra.
+[[redirects]]
+  from = "/admin"
+  to = "/"
+  status = 302
+  force = true
+
+[[redirects]]
+  from = "/admin/*"
+  to = "/"
+  status = 302
+  force = true
+
 [[headers]]
   for = "/*"
   [headers.values]

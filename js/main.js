@@ -9,6 +9,20 @@
 
   var money = new Intl.NumberFormat('vi-VN', { maximumFractionDigits: 1 });
 
+  function escapeHtml(value) {
+    return String(value == null ? '' : value)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  }
+
+  function safeAssetUrl(value) {
+    var url = String(value == null ? '' : value).trim();
+    return /^(https?:\/\/|\/|images\/)/i.test(url) ? escapeHtml(url) : '';
+  }
+
   function accentClasses(accent) {
     var map = {
       forest: { chip: 'bg-forest text-cream', ring: 'ring-forest/30', stroke: '#1E3B2E', fill: '#2F5843' },
@@ -39,21 +53,30 @@
 
   function productCard(product) {
     var a = accentClasses(product.accent);
+    var price = Number(product.price);
+    var area = Number(product.area);
+    var frontage = Number(product.frontage);
+    var deedUrl = safeAssetUrl(product.deed);
+    var productName = escapeHtml(product.name);
+    var productId = escapeHtml(product.id);
+    var priceLabel = Number.isFinite(price) ? price.toFixed(2) + ' tỷ' : 'Liên hệ';
+    var areaLabel = Number.isFinite(area) ? money.format(area) + ' m²' : 'Liên hệ';
+    var frontageLabel = Number.isFinite(frontage) ? frontage + ' m' : 'Liên hệ';
     return (
-      '<article class="reveal group rounded-2xl bg-sand ring-1 ' + a.ring + ' p-5 flex flex-col gap-4 transition duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-ink/10" data-price="' + product.price + '">' +
-        (product.deed ? '<a href="' + product.deed + '" target="_blank" class="rounded-lg overflow-hidden block bg-cream/70 hover:shadow-md transition"><img src="' + product.deed + '" alt="Sổ đỏ - ' + product.name + '" class="w-full h-48 object-cover"></a>' : '<div class="rounded-xl bg-cream/70 p-3">' + parcelSvg(product) + '</div>') +
+      '<article class="reveal group rounded-2xl bg-sand ring-1 ' + a.ring + ' p-5 flex flex-col gap-4 transition duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-ink/10" data-price="' + (Number.isFinite(price) ? price : 0) + '">' +
+        (deedUrl ? '<a href="' + deedUrl + '" target="_blank" rel="noopener noreferrer" class="rounded-lg overflow-hidden block bg-cream/70 hover:shadow-md transition"><img src="' + deedUrl + '" alt="Giấy tờ minh họa - ' + productName + '" class="w-full h-48 object-cover"></a>' : '<div class="rounded-xl bg-cream/70 p-3">' + parcelSvg(product) + '</div>') +
         '<div class="flex items-start justify-between gap-3">' +
-          '<h3 class="font-display text-lg leading-snug text-ink">' + product.name + '</h3>' +
-          '<span class="shrink-0 rounded-full px-3 py-1 text-xs font-semibold ' + a.chip + '">' + product.price.toFixed(2) + ' tỷ</span>' +
+          '<h3 class="font-display text-lg leading-snug text-ink">' + productName + '</h3>' +
+          '<span class="shrink-0 rounded-full px-3 py-1 text-xs font-semibold ' + a.chip + '">' + priceLabel + '</span>' +
         '</div>' +
         '<dl class="grid grid-cols-2 gap-y-1.5 text-sm text-ink/70">' +
-          '<dt class="text-ink/45">Diện tích</dt><dd>' + money.format(product.area) + ' m²</dd>' +
-          '<dt class="text-ink/45">Mặt tiền</dt><dd>' + product.frontage + ' m</dd>' +
-          '<dt class="text-ink/45">Hướng</dt><dd>' + product.direction + '</dd>' +
-          '<dt class="text-ink/45">Pháp lý</dt><dd>' + product.legal + '</dd>' +
+          '<dt class="text-ink/45">Diện tích</dt><dd>' + areaLabel + '</dd>' +
+          '<dt class="text-ink/45">Mặt tiền</dt><dd>' + frontageLabel + '</dd>' +
+          '<dt class="text-ink/45">Hướng</dt><dd>' + escapeHtml(product.direction) + '</dd>' +
+          '<dt class="text-ink/45">Pháp lý</dt><dd>' + escapeHtml(product.legal) + '</dd>' +
         '</dl>' +
-        '<p class="text-sm text-ink/60 italic">' + product.highlight + '</p>' +
-        '<a href="#bao-gia" data-plot="' + product.id + '" class="plot-cta mt-auto inline-flex items-center justify-center gap-2 rounded-full bg-ink px-4 py-2.5 text-sm font-semibold text-cream transition hover:bg-forest">' +
+        '<p class="text-sm text-ink/60 italic">' + escapeHtml(product.highlight) + '</p>' +
+        '<a href="#bao-gia" data-plot="' + productId + '" class="plot-cta mt-auto inline-flex items-center justify-center gap-2 rounded-full bg-ink px-4 py-2.5 text-sm font-semibold text-cream transition hover:bg-forest">' +
           'Nhận tư vấn lô này' +
           '<svg class="h-4 w-4" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M4 10h12M11 5l5 5-5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
         '</a>' +
@@ -75,9 +98,10 @@
     var grid = document.getElementById('products-grid');
     if (!grid) return;
     var list = (window.GIAHUY_PRODUCTS || []).filter(function (p) {
-      if (filter === 'under2') return p.price < 2;
-      if (filter === '2to3') return p.price >= 2 && p.price <= 3;
-      if (filter === 'over3') return p.price > 3;
+      var price = Number(p.price);
+      if (filter === 'under2') return price < 2;
+      if (filter === '2to3') return price >= 2 && price <= 3;
+      if (filter === 'over3') return price > 3;
       return true;
     });
     grid.innerHTML = list.map(productCard).join('');
@@ -90,10 +114,12 @@
   function populatePlotSelect() {
     var select = document.getElementById('lo_dat_quan_tam');
     if (!select) return;
+    select.length = 1;
     (window.GIAHUY_PRODUCTS || []).forEach(function (p) {
       var opt = document.createElement('option');
       opt.value = p.id;
-      opt.textContent = p.name + ' — ' + p.price.toFixed(2) + ' tỷ';
+      var price = Number(p.price);
+      opt.textContent = p.name + ' — ' + (Number.isFinite(price) ? price.toFixed(2) + ' tỷ' : 'Liên hệ');
       select.appendChild(opt);
     });
     var opt = document.createElement('option');
@@ -104,6 +130,8 @@
 
   // Load products from Supabase
   async function loadProducts() {
+    renderProducts('all');
+    populatePlotSelect();
     try {
       const products = await fetchProductsFromSupabase();
       if (products && products.length > 0) {
@@ -112,7 +140,7 @@
         populatePlotSelect();
       }
     } catch (err) {
-      console.error('Lỗi load products:', err);
+      console.warn('Không thể tải dữ liệu mới từ Supabase; đang hiển thị danh sách dự phòng.', err);
     }
   }
 

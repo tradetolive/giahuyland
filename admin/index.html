@@ -81,9 +81,9 @@
   <script>
     const SUPABASE_URL = 'https://yxzoeicxoppupxxilzjh.supabase.co';
     const SUPABASE_ANON_KEY = 'sb_publishable_RC91v70_KIB-EKYtqYoiVQ_RuRxctW4';
-    
-    const { createClient } = window.supabase;
-    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const supabaseClient = window.supabase && typeof window.supabase.createClient === 'function'
+      ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+      : null;
 
     let products = [];
     let editingId = null;
@@ -95,7 +95,9 @@
 
     async function loadProducts() {
       try {
-        const { data, error } = await supabase
+        if (!supabaseClient) throw new Error('Không tải được thư viện Supabase.');
+
+        const { data, error } = await supabaseClient
           .from('products')
           .select('*')
           .order('created_at', { ascending: false });
@@ -155,8 +157,10 @@
         // Upload ảnh
         const timestamp = Date.now();
         const deedPath = `${timestamp}-deed-${deedFile.name}`;
-        
-        const { data: uploadData, error: uploadError } = await supabase.storage
+
+        if (!supabaseClient) throw new Error('Không tải được thư viện Supabase.');
+
+        const { data: uploadData, error: uploadError } = await supabaseClient.storage
           .from('products')
           .upload(deedPath, deedFile);
         
@@ -179,7 +183,7 @@
           image: null,
         };
 
-        const { error } = await supabase
+        const { error } = await supabaseClient
           .from('products')
           .insert([productData]);
         
@@ -197,9 +201,11 @@
 
     async function deleteProduct(id) {
       if (!confirm('Xác nhận xóa bài đăng này?')) return;
-      
+
       try {
-        const { error } = await supabase
+        if (!supabaseClient) throw new Error('Không tải được thư viện Supabase.');
+
+        const { error } = await supabaseClient
           .from('products')
           .delete()
           .eq('id', id);

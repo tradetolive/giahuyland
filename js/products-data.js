@@ -1,9 +1,9 @@
 /**
- * GiaHuy Land — mock product data.
- * Simulated JSON data source for land-lot listings, kept in client-side JS
- * per the zero-cost static hosting requirement (no server database).
+ * GiaHuy Land — dữ liệu dự phòng cho danh sách sản phẩm.
+ * Danh sách này chỉ hiển thị khi Supabase tạm thời chưa phản hồi, giúp phần
+ * sản phẩm không bị trống. Giá cần được xác minh trước khi sử dụng công khai.
  */
-const GIAHUY_PRODUCTS = [
+window.GIAHUY_PRODUCTS = [
   {
     id: 'A12',
     name: 'Lô A12 – Khu đô thị ven sông Hà An',
@@ -75,10 +75,10 @@ const GIAHUY_PRODUCTS = [
     name: 'Trung tâm Khu 11 phường Hà An',
     area: 123,
     frontage: 5,
-    price: 1.xx,
+    price: 2.91,
     direction: 'Tây Bắc',
     legal: 'Sổ đỏ chính chủ, đã tách thửa',
-    highlight: 'Mặt tiền 5m vuông vắn, Giá chỉ 1,x tỷ cho 123m2',
+    highlight: 'Mặt tiền 5m vuông vắn; giá tham khảo 2,91 tỷ, vui lòng liên hệ để xác nhận.',
     accent: 'gold',
     deed: 'images/products/HaAn_Khu11_2026_BDS001-deed.jpg',
   },
