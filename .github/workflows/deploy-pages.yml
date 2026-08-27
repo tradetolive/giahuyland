@@ -34,7 +34,6 @@ jobs:
             --exclude='.git' \
             --exclude='.github' \
             --exclude='_site' \
-            --exclude='admin' \
             ./ _site/
           touch _site/.nojekyll
 

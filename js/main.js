@@ -56,7 +56,7 @@
     var price = Number(product.price);
     var area = Number(product.area);
     var frontage = Number(product.frontage);
-    var deedUrl = safeAssetUrl(product.deed);
+    var imageUrl = safeAssetUrl(product.image);
     var productName = escapeHtml(product.name);
     var productId = escapeHtml(product.id);
     var priceLabel = Number.isFinite(price) ? price.toFixed(2) + ' tỷ' : 'Liên hệ';
@@ -64,7 +64,7 @@
     var frontageLabel = Number.isFinite(frontage) ? frontage + ' m' : 'Liên hệ';
     return (
       '<article class="reveal group rounded-2xl bg-sand ring-1 ' + a.ring + ' p-5 flex flex-col gap-4 transition duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-ink/10" data-price="' + (Number.isFinite(price) ? price : 0) + '">' +
-        (deedUrl ? '<a href="' + deedUrl + '" target="_blank" rel="noopener noreferrer" class="rounded-lg overflow-hidden block bg-cream/70 hover:shadow-md transition"><img src="' + deedUrl + '" alt="Giấy tờ minh họa - ' + productName + '" class="w-full h-48 object-cover"></a>' : '<div class="rounded-xl bg-cream/70 p-3">' + parcelSvg(product) + '</div>') +
+        (imageUrl ? '<div class="rounded-lg overflow-hidden block bg-cream/70"><img src="' + imageUrl + '" alt="Ảnh minh họa - ' + productName + '" class="w-full h-48 object-cover"></div>' : '<div class="rounded-xl bg-cream/70 p-3">' + parcelSvg(product) + '</div>') +
         '<div class="flex items-start justify-between gap-3">' +
           '<h3 class="font-display text-lg leading-snug text-ink">' + productName + '</h3>' +
           '<span class="shrink-0 rounded-full px-3 py-1 text-xs font-semibold ' + a.chip + '">' + priceLabel + '</span>' +

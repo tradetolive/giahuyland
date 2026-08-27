@@ -1,234 +1,87 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="vi">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin - GiaHuy Land</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <meta name="referrer" content="strict-origin-when-cross-origin" />
+  <title>Quản trị nội dung | GiaHuy Land</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,500;9..144,600&display=swap" rel="stylesheet" />
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <style>
-    .loading { opacity: 0.6; pointer-events: none; }
-  </style>
-</head>
-<body class="bg-gradient-to-br from-slate-900 to-slate-800">
-  <div class="min-h-screen p-4 sm:p-8">
-    <div class="max-w-6xl mx-auto">
-      <!-- Header -->
-      <div class="flex justify-between items-center mb-8">
-        <h1 class="text-3xl font-bold text-white">GiaHuy Land Admin</h1>
-        <button onclick="logout()" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg">Logout</button>
-      </div>
-
-      <!-- Add New Product Form -->
-      <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
-        <h2 class="text-2xl font-bold mb-6 text-gray-800">Thêm Bài Đăng Mới</h2>
-        <form id="productForm" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <input type="text" id="id" placeholder="Mã Lô (VD: HaAn_Khu11)" class="col-span-1 px-4 py-2 border rounded-lg" required>
-          <input type="text" id="name" placeholder="Tên/Tiêu Đề" class="col-span-1 px-4 py-2 border rounded-lg" required>
-          
-          <input type="number" id="area" placeholder="Diện Tích (m²)" step="0.1" class="col-span-1 px-4 py-2 border rounded-lg" required>
-          <input type="number" id="frontage" placeholder="Mặt Tiền (m)" step="0.1" class="col-span-1 px-4 py-2 border rounded-lg" required>
-          
-          <input type="number" id="price" placeholder="Giá (tỷ VND)" step="0.01" class="col-span-1 px-4 py-2 border rounded-lg" required>
-          <select id="direction" class="col-span-1 px-4 py-2 border rounded-lg" required>
-            <option value="">Chọn Hướng</option>
-            <option value="Đông">Đông</option>
-            <option value="Tây">Tây</option>
-            <option value="Nam">Nam</option>
-            <option value="Bắc">Bắc</option>
-            <option value="Đông Nam">Đông Nam</option>
-            <option value="Đông Bắc">Đông Bắc</option>
-            <option value="Tây Nam">Tây Nam</option>
-            <option value="Tây Bắc">Tây Bắc</option>
-          </select>
-          
-          <input type="text" id="legal" placeholder="Pháp Lý" class="col-span-1 md:col-span-2 px-4 py-2 border rounded-lg" required>
-          <textarea id="highlight" placeholder="Điểm Nổi Bật" class="col-span-1 md:col-span-2 px-4 py-2 border rounded-lg" rows="2"></textarea>
-          
-          <select id="accent" class="col-span-1 px-4 py-2 border rounded-lg" required>
-            <option value="">Chọn Màu</option>
-            <option value="forest">Xanh Lục (Forest)</option>
-            <option value="clay">Đỏ Đất (Clay)</option>
-            <option value="gold">Vàng (Gold)</option>
-          </select>
-          
-          <div class="col-span-1 md:col-span-2">
-            <label class="block text-sm font-medium mb-2">Ảnh Sổ Đỏ (bắt buộc)</label>
-            <input type="file" id="deedFile" accept="image/*" class="w-full px-4 py-2 border rounded-lg" required>
-          </div>
-          
-          <div class="col-span-1 md:col-span-2">
-            <label class="block text-sm font-medium mb-2">Ảnh Đất (tùy chọn)</label>
-            <input type="file" id="imageFile" accept="image/*" class="w-full px-4 py-2 border rounded-lg">
-          </div>
-          
-          <button type="submit" class="col-span-1 md:col-span-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold">
-            Thêm Bài Đăng
-          </button>
-        </form>
-      </div>
-
-      <!-- Products List -->
-      <div class="bg-white rounded-lg shadow-lg p-6">
-        <h2 class="text-2xl font-bold mb-6 text-gray-800">Danh Sách Bài Đăng</h2>
-        <div id="productsList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          <div class="text-center text-gray-500 py-8">Đang tải...</div>
-        </div>
-      </div>
-    </div>
-  </div>
-
   <script>
-    const SUPABASE_URL = 'https://yxzoeicxoppupxxilzjh.supabase.co';
-    const SUPABASE_ANON_KEY = 'sb_publishable_RC91v70_KIB-EKYtqYoiVQ_RuRxctW4';
-    const supabaseClient = window.supabase && typeof window.supabase.createClient === 'function'
-      ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
-      : null;
-
-    let products = [];
-    let editingId = null;
-
-    async function init() {
-      await loadProducts();
-      document.getElementById('productForm').addEventListener('submit', handleSubmit);
-    }
-
-    async function loadProducts() {
-      try {
-        if (!supabaseClient) throw new Error('Không tải được thư viện Supabase.');
-
-        const { data, error } = await supabaseClient
-          .from('products')
-          .select('*')
-          .order('created_at', { ascending: false });
-        
-        if (error) throw error;
-        
-        products = data || [];
-        renderProducts();
-      } catch (err) {
-        alert('Lỗi tải dữ liệu: ' + err.message);
-      }
-    }
-
-    function renderProducts() {
-      const container = document.getElementById('productsList');
-      
-      if (products.length === 0) {
-        container.innerHTML = '<div class="text-center text-gray-500 py-8 col-span-full">Chưa có bài đăng nào</div>';
-        return;
-      }
-
-      container.innerHTML = products.map(p => `
-        <div class="border rounded-lg p-4 bg-gray-50">
-          <div class="flex justify-between items-start mb-2">
-            <div>
-              <h3 class="font-bold text-gray-800">${p.name}</h3>
-              <p class="text-sm text-gray-600">ID: ${p.id}</p>
-            </div>
-            <button onclick="editProduct('${p.id}')" class="text-blue-600 hover:text-blue-800 text-sm">Sửa</button>
-          </div>
-          <div class="text-sm text-gray-600 space-y-1">
-            <p>📐 ${p.area}m² - Mặt tiền: ${p.frontage}m</p>
-            <p>💰 ${p.price.toFixed(2)} tỷ - Hướng: ${p.direction}</p>
-            <p>📜 ${p.legal}</p>
-          </div>
-          <button onclick="deleteProduct('${p.id}')" class="mt-3 w-full bg-red-100 hover:bg-red-200 text-red-700 px-3 py-2 rounded text-sm">
-            Xóa
-          </button>
-        </div>
-      `).join('');
-    }
-
-    async function handleSubmit(e) {
-      e.preventDefault();
-      
-      const form = e.target;
-      form.classList.add('loading');
-
-      try {
-        const deedFile = document.getElementById('deedFile').files[0];
-        if (!deedFile) {
-          alert('Vui lòng chọn ảnh sổ đỏ');
-          form.classList.remove('loading');
-          return;
-        }
-
-        // Upload ảnh
-        const timestamp = Date.now();
-        const deedPath = `${timestamp}-deed-${deedFile.name}`;
-
-        if (!supabaseClient) throw new Error('Không tải được thư viện Supabase.');
-
-        const { data: uploadData, error: uploadError } = await supabaseClient.storage
-          .from('products')
-          .upload(deedPath, deedFile);
-        
-        if (uploadError) throw uploadError;
-
-        const deedUrl = `${SUPABASE_URL}/storage/v1/object/public/products/${deedPath}`;
-
-        // Lưu product
-        const productData = {
-          id: document.getElementById('id').value,
-          name: document.getElementById('name').value,
-          area: parseFloat(document.getElementById('area').value),
-          frontage: parseFloat(document.getElementById('frontage').value),
-          price: parseFloat(document.getElementById('price').value),
-          direction: document.getElementById('direction').value,
-          legal: document.getElementById('legal').value,
-          highlight: document.getElementById('highlight').value,
-          accent: document.getElementById('accent').value,
-          deed: deedUrl,
-          image: null,
-        };
-
-        const { error } = await supabaseClient
-          .from('products')
-          .insert([productData]);
-        
-        if (error) throw error;
-
-        alert('Thêm bài đăng thành công!');
-        form.reset();
-        await loadProducts();
-      } catch (err) {
-        alert('Lỗi: ' + err.message);
-      } finally {
-        form.classList.remove('loading');
-      }
-    }
-
-    async function deleteProduct(id) {
-      if (!confirm('Xác nhận xóa bài đăng này?')) return;
-
-      try {
-        if (!supabaseClient) throw new Error('Không tải được thư viện Supabase.');
-
-        const { error } = await supabaseClient
-          .from('products')
-          .delete()
-          .eq('id', id);
-        
-        if (error) throw error;
-        
-        alert('Xóa thành công!');
-        await loadProducts();
-      } catch (err) {
-        alert('Lỗi: ' + err.message);
-      }
-    }
-
-    function editProduct(id) {
-      alert('Chức năng sửa sẽ được thêm vào sớm');
-    }
-
-    function logout() {
-      alert('Logout thành công');
-      // Sau này sẽ add auth real
-    }
-
-    init();
+    tailwind.config = { theme: { extend: { colors: { ink: '#17251e', forest: '#1e3b2e', cream: '#f7f4ec', clay: '#c1592e' }, fontFamily: { display: ['Fraunces', 'Georgia', 'serif'], sans: ['Be Vietnam Pro', 'system-ui', 'sans-serif'] } } } };
   </script>
+</head>
+<body class="min-h-screen bg-cream font-sans text-ink">
+  <main class="mx-auto min-h-screen max-w-7xl px-4 py-6 sm:px-8 sm:py-10">
+    <section id="login-panel" class="mx-auto mt-12 max-w-md rounded-[2rem] border border-[#d9dfd4] bg-white p-7 shadow-xl shadow-[#1e3b2e]/10 sm:p-9" hidden>
+      <p class="text-xs font-bold uppercase tracking-[0.18em] text-clay">GiaHuy Land</p>
+      <h1 class="mt-3 font-display text-3xl text-forest">Đăng nhập quản trị</h1>
+      <p class="mt-3 text-sm leading-6 text-slate-600">Khu vực này chỉ dành cho tài khoản đã được cấp quyền. Quyền tạo, chỉnh sửa, xóa và tải ảnh được kiểm soát trong Supabase.</p>
+      <form id="login-form" class="mt-7 space-y-4">
+        <div><label for="admin-email" class="text-sm font-semibold text-slate-700">Email quản trị</label><input id="admin-email" type="email" autocomplete="email" required class="mt-1.5 w-full rounded-xl border border-slate-300 px-4 py-3 outline-none transition focus:border-forest focus:ring-2 focus:ring-forest/15" /></div>
+        <div><label for="admin-password" class="text-sm font-semibold text-slate-700">Mật khẩu</label><input id="admin-password" type="password" autocomplete="current-password" required class="mt-1.5 w-full rounded-xl border border-slate-300 px-4 py-3 outline-none transition focus:border-forest focus:ring-2 focus:ring-forest/15" /></div>
+        <button id="login-button" type="submit" class="w-full rounded-xl bg-forest px-5 py-3 font-semibold text-white transition hover:bg-[#142e22] disabled:opacity-60">Đăng nhập</button>
+      </form>
+      <p id="login-status" class="mt-4 text-sm text-slate-600" role="status" aria-live="polite"></p>
+      <p class="mt-6 border-t border-slate-100 pt-5 text-xs leading-5 text-slate-500">Chưa có tài khoản? Chủ website cần tạo user trong Supabase Authentication và thêm user đó vào bảng <code class="rounded bg-slate-100 px-1">admin_users</code>.</p>
+    </section>
+
+    <section id="dashboard-panel" hidden>
+      <header class="flex flex-col gap-5 border-b border-[#d9dfd4] pb-6 sm:flex-row sm:items-end sm:justify-between">
+        <div><a href="../" class="text-xs font-bold uppercase tracking-[0.18em] text-clay">← Xem website công khai</a><h1 class="mt-3 font-display text-4xl text-forest">Phòng biên tập GiaHuy Land</h1><p class="mt-2 text-sm text-slate-600">Tạo bài/dự án, ảnh minh họa và tài liệu hồ sơ với luồng xuất bản có kiểm soát.</p></div>
+        <div class="flex items-center gap-3"><p id="admin-email-label" class="max-w-[14rem] truncate text-sm font-medium text-slate-600"></p><button id="logout-button" type="button" class="rounded-xl border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:border-red-300 hover:text-red-700">Đăng xuất</button></div>
+      </header>
+
+      <div id="app-status" class="mt-4" role="status" aria-live="polite" hidden></div>
+
+      <section class="mt-8 grid gap-8 xl:grid-cols-[minmax(0,1.15fr)_minmax(21rem,0.85fr)]">
+        <form id="listing-form" class="rounded-[2rem] border border-[#d9dfd4] bg-white p-5 shadow-sm sm:p-7">
+          <div class="flex items-start justify-between gap-4"><div><p class="text-xs font-bold uppercase tracking-[0.16em] text-clay">Soạn thảo</p><h2 id="form-title" class="mt-2 font-display text-2xl text-forest">Đăng nội dung mới</h2></div><button id="cancel-edit" type="button" class="text-sm font-semibold text-slate-500 hover:text-forest" hidden>Hủy chỉnh sửa</button></div>
+          <input id="listing-id" type="hidden" />
+          <div class="mt-6 grid gap-4 sm:grid-cols-2">
+            <div class="sm:col-span-2"><label for="title" class="field-label">Tiêu đề dự án/bài đăng</label><input id="title" required maxlength="160" class="field-input" placeholder="Ví dụ: Lô đất view đầm sinh thái" /></div>
+            <div><label for="slug" class="field-label">Slug URL</label><input id="slug" required pattern="[a-z0-9]+(?:-[a-z0-9]+)*" class="field-input" placeholder="lo-dat-view-dam-sinh-thai" /><p class="mt-1 text-xs text-slate-400">Chỉ chữ thường, số và dấu gạch ngang.</p></div>
+            <div><label for="publication-status" class="field-label">Trạng thái</label><select id="publication-status" class="field-input"><option value="draft">Bản nháp — chỉ admin xem</option><option value="published">Xuất bản — khách xem được</option></select></div>
+            <div><label for="property-type" class="field-label">Loại hình</label><select id="property-type" class="field-input"><option>Đất nền</option><option>Nhà phố</option><option>Biệt thự</option><option>Căn hộ</option><option>Bài viết tư vấn</option></select></div>
+            <div><label for="location" class="field-label">Khu vực</label><input id="location" required maxlength="180" class="field-input" placeholder="Phường Hà An, Quảng Ninh" /></div>
+            <div><label for="price-billion" class="field-label">Giá tham khảo (tỷ VNĐ)</label><input id="price-billion" required min="0" step="0.01" type="number" class="field-input" placeholder="2.91" /></div>
+            <div><label for="area-sqm" class="field-label">Diện tích (m²)</label><input id="area-sqm" required min="0.01" step="0.1" type="number" class="field-input" placeholder="123" /></div>
+            <div><label for="frontage-m" class="field-label">Mặt tiền (m)</label><input id="frontage-m" min="0" step="0.1" type="number" class="field-input" placeholder="5" /></div>
+            <div><label for="direction" class="field-label">Hướng</label><select id="direction" class="field-input"><option value="">Chưa xác định</option><option>Đông</option><option>Tây</option><option>Nam</option><option>Bắc</option><option>Đông Nam</option><option>Đông Bắc</option><option>Tây Nam</option><option>Tây Bắc</option></select></div>
+            <div><label for="accent" class="field-label">Màu nhấn thẻ</label><select id="accent" class="field-input"><option value="forest">Xanh rừng</option><option value="clay">Đỏ đất</option><option value="gold">Vàng nhạt</option></select></div>
+            <div class="sm:col-span-2"><label for="legal-summary" class="field-label">Tóm tắt pháp lý hiển thị công khai</label><input id="legal-summary" required maxlength="200" class="field-input" placeholder="Sổ đỏ riêng, đất ở..." /></div>
+            <div class="sm:col-span-2"><label for="summary" class="field-label">Nội dung/điểm nổi bật</label><textarea id="summary" required maxlength="700" rows="4" class="field-input resize-y" placeholder="Mô tả ngắn về vị trí, hiện trạng và thông tin đã được xác thực."></textarea></div>
+          </div>
+
+          <div class="mt-7 rounded-2xl border border-dashed border-[#bfd0bf] bg-[#f8faf6] p-4 sm:p-5">
+            <div class="flex items-start gap-3"><span class="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#dfeadc] text-sm font-bold text-forest">1</span><div><h3 class="font-semibold text-slate-800">Ảnh marketing công khai</h3><p class="mt-1 text-xs leading-5 text-slate-500">Dùng cho thẻ dự án và thư viện ảnh trên website. Chỉ JPEG, PNG, WEBP; tối đa 5 MB/tệp.</p></div></div>
+            <div class="mt-4 grid gap-4 sm:grid-cols-2"><div><label for="cover-file" class="field-label">Ảnh cover</label><input id="cover-file" accept="image/jpeg,image/png,image/webp" type="file" class="file-input" /></div><div><label for="gallery-files" class="field-label">Ảnh thư viện</label><input id="gallery-files" accept="image/jpeg,image/png,image/webp" type="file" multiple class="file-input" /><p id="gallery-count" class="mt-1 text-xs text-slate-400"></p></div></div>
+          </div>
+
+          <div class="mt-4 rounded-2xl border border-dashed border-[#ead2c2] bg-[#fffaf5] p-4 sm:p-5">
+            <div class="flex items-start gap-3"><span class="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#f8dfc9] text-sm font-bold text-[#9d4927]">2</span><div><h3 class="font-semibold text-slate-800">Ảnh sổ đỏ/tài liệu pháp lý private</h3><p class="mt-1 text-xs leading-5 text-slate-500">Không hiển thị ngoài website. Chỉ admin đăng nhập mới mở được URL có hiệu lực tạm thời.</p></div></div>
+            <div class="mt-4"><label for="document-file" class="field-label">Tải ảnh/PDF hồ sơ</label><input id="document-file" accept="image/jpeg,image/png,image/webp,application/pdf" type="file" class="file-input" /></div>
+          </div>
+
+          <div id="existing-assets" class="mt-4 rounded-2xl bg-slate-50 p-4 text-sm text-slate-600" hidden><p class="font-semibold text-slate-800">Tệp hiện có</p><div class="mt-2 flex flex-wrap gap-x-4 gap-y-2"><span id="current-cover"></span><span id="current-gallery"></span><span id="current-document"></span><button id="preview-document" type="button" class="font-semibold text-forest hover:underline">Mở tài liệu private</button></div></div>
+          <button id="save-button" type="submit" class="mt-7 w-full rounded-xl bg-forest px-5 py-3.5 font-semibold text-white transition hover:bg-[#142e22] disabled:cursor-not-allowed disabled:opacity-60"><span id="save-button-label">Lưu bài đăng</span></button>
+        </form>
+
+        <section><div class="mb-4 flex items-end justify-between"><div><p class="text-xs font-bold uppercase tracking-[0.16em] text-clay">Danh sách</p><h2 class="mt-2 font-display text-2xl text-forest">Nội dung đã lưu</h2></div><button type="button" onclick="location.reload()" class="text-sm font-semibold text-slate-500 hover:text-forest">Làm mới</button></div><div id="listing-list" class="grid gap-4"></div></section>
+      </section>
+    </section>
+  </main>
+  <style>
+    .field-label { display:block; font-size:.8125rem; font-weight:600; color:#334155; }
+    .field-input { margin-top:.375rem; width:100%; border:1px solid #cbd5e1; border-radius:.75rem; padding:.75rem .875rem; color:#17251e; outline:none; background:#fff; transition:border-color .15s, box-shadow .15s; }
+    .field-input:focus { border-color:#1e3b2e; box-shadow:0 0 0 3px rgba(30,59,46,.12); }
+    .file-input { margin-top:.375rem; width:100%; border:1px solid #cbd5e1; border-radius:.75rem; background:#fff; padding:.6rem; font-size:.8125rem; }
+    .file-input::file-selector-button { margin-right:.75rem; border:0; border-radius:.5rem; background:#e6efe1; padding:.45rem .65rem; font-weight:600; color:#1e3b2e; cursor:pointer; }
+  </style>
+  <script src="./js/admin.js"></script>
 </body>
 </html>
