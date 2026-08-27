@@ -41,11 +41,11 @@
 ## Bài viết biên tập và liên hệ theo listing
 
 - [ ] Kiểm kê ba khối nội dung tĩnh trên trang chủ, xác định dữ liệu/ảnh/link cần chuyển về mô hình bài viết quản trị.
-- [ ] Thiết kế bảng `content_posts`, RLS và Storage theo nguyên tắc public chỉ đọc bài `published`, admin mới tạo/sửa/xóa.
-- [ ] Bổ sung biểu mẫu CRUD cho bài viết biên tập trong dashboard mà không làm thay đổi luồng listing hiện có.
-- [ ] Bổ sung danh sách và trang chi tiết bài viết công khai theo slug, chỉ tải bài `published`.
+- [x] Thiết kế bảng `content_posts`, RLS và Storage theo nguyên tắc dashboard admin dùng bảng gốc, public chỉ đọc view `content_posts_public` có bài `published` và cột an toàn.
+- [x] Bổ sung biểu mẫu CRUD cho bài viết biên tập trong dashboard mà không làm thay đổi luồng listing hiện có.
+- [x] Bổ sung danh sách và trang chi tiết bài viết công khai theo slug, chỉ tải bài `published` qua view public.
 - [ ] Nghiên cứu đường dẫn chính thức Zalo/Messenger cho nội dung soạn sẵn; không hứa hẹn tự điền nếu nền tảng không hỗ trợ chat cá nhân.
-- [ ] Kiểm thử quyền public/admin, responsive, URL chi tiết, liên hệ, SEO và cập nhật hướng dẫn trước khi xin xác nhận deploy.
+- [x] Kiểm thử quyền public: view trả 3 bài published; bảng gốc anonymous trả 401; yêu cầu `author_id` qua view trả 400. Kiểm tra render desktop/mobile và URL slug hợp lệ/không tồn tại đã đạt. Hướng dẫn vận hành đã cập nhật; dashboard CRUD cần người dùng xác nhận thao tác sau deploy.
 
 > Phạm vi đã chốt: chỉ triển khai quản trị nội dung tĩnh. GiaHuy Land đang sử dụng Facebook/Messenger cá nhân nên không triển khai tự điền hoặc tự gửi tin nhắn; giữ cơ chế sao chép link + mở chat hiện có.
 
@@ -53,4 +53,6 @@
 
 > Kiểm thử sau migration: Data API anonymous trả HTTP 200 cho đúng 3 bài `published`, trả mảng rỗng khi lọc `draft`, bài theo slug hợp lệ trả 1 dòng và slug không tồn tại trả mảng rỗng. Preview trang chủ tải được; kiểm tra sau tải JavaScript bị timeout từ My Browser nên không dùng để đánh giá trực quan phần render động.
 
-> Hardening phát hiện sau migration: query anonymous ban đầu có thể yêu cầu cột `author_id` dù không hiển thị trên UI. Đã chuẩn bị migration `20260827_harden_content_posts_public_read.sql` để chuyển public read sang view `content_posts_public` chỉ chọn cột an toàn và chỉ bài published; chờ xác nhận trước khi chạy vì có thay đổi policy/grant.
+> Hardening sau migration: `20260827_harden_content_posts_public_read.sql` đã được chủ dự án chạy. Public read hiện qua view `content_posts_public` chỉ có cột an toàn/bài published; bảng gốc anonymous trả HTTP 401 và `author_id` không tồn tại trong view.
+
+> Kiểm tra trực quan preview bằng Chromium headless: desktop giữ rõ tiêu đề, CTA và minh họa ở hero; mobile 390 px xếp tiêu đề/bản tóm tắt/CTA không tràn ngang. Không thay đổi liên hệ Zalo/Messenger trong đợt này.

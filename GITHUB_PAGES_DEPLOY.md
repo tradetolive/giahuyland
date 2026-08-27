@@ -35,7 +35,7 @@ Luồng này dùng Supabase Auth và không cần SQL hay khóa `service_role`.
 
 ### Quản lý nội dung biên tập
 
-Các nội dung giới thiệu, “Điểm nghẽn quy hoạch” và “Lợi thế Hà An” dùng bảng `content_posts`, tách biệt với listing bất động sản. Sau khi migration `supabase/migrations/20260827_editorial_content_posts.sql` đã được chủ dự án review và chạy trong **Supabase → SQL Editor**, cách vận hành như sau:
+Các nội dung giới thiệu, “Điểm nghẽn quy hoạch” và “Lợi thế Hà An” dùng bảng `content_posts`, tách biệt với listing bất động sản. Dashboard quản trị dùng bảng gốc; website public chỉ đọc view `content_posts_public`, vốn chỉ có bài published và không có `author_id`. Sau khi migrations `supabase/migrations/20260827_editorial_content_posts.sql` và `supabase/migrations/20260827_harden_content_posts_public_read.sql` đã được chủ dự án review và chạy trong **Supabase → SQL Editor**, cách vận hành như sau:
 
 1. Mở `/admin/` và đăng nhập.
 2. Cuộn đến khu vực **Nội dung biên tập**.
