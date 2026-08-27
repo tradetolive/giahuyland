@@ -57,3 +57,14 @@
 > Hardening sau migration: `20260827_harden_content_posts_public_read.sql` đã được chủ dự án chạy. Public read hiện qua view `content_posts_public` chỉ có cột an toàn/bài published; bảng gốc anonymous trả HTTP 401 và `author_id` không tồn tại trong view.
 
 > Kiểm tra trực quan preview bằng Chromium headless: desktop giữ rõ tiêu đề, CTA và minh họa ở hero; mobile 390 px xếp tiêu đề/bản tóm tắt/CTA không tràn ngang. Không thay đổi liên hệ Zalo/Messenger trong đợt này.
+
+## Tự động tạo bài viết nháp hằng ngày
+
+- [x] Xác định chủ đề, allowlist Cổng thông tin điện tử tỉnh Quảng Ninh, quy tắc trích dẫn và tiêu chí loại trừ nội dung.
+- [x] Thiết kế quy trình zero-cost chỉ tạo `draft`, chống trùng lặp theo fingerprint URL và lưu URL nguồn để admin kiểm chứng.
+- [x] Chọn lịch GitHub 00:00 UTC (07:00 Việt Nam), GitHub Actions Secret và chế độ bỏ qua an toàn khi chưa có key.
+- [ ] Triển khai sau khi chủ website xác nhận rõ nguồn, tần suất và việc tạo draft tự động; không tự xuất bản hay đăng nội dung chưa duyệt.
+
+> Cấu hình đã chốt: Phương án workflow nền GitHub, chạy **07:00 hằng ngày giờ Việt Nam** (00:00 UTC), chỉ allowlist nguồn cơ quan nhà nước, tạo tối đa một `draft` mỗi lần và tuyệt đối không tự xuất bản.
+
+> Thiết kế triển khai: workflow chỉ chạy ghi dữ liệu khi GitHub Secret `SUPABASE_SERVICE_ROLE_KEY` đã tồn tại; chạy tay mặc định `dry_run=true` không cần key. Chưa chạy migration, chưa tạo secret và chưa tạo bản nháp thật trong Supabase.

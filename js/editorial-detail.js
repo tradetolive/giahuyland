@@ -27,6 +27,29 @@
     document.getElementById('article-canonical').setAttribute('href', canonical);
   }
 
+  function renderSource(post) {
+    var source = document.getElementById('article-source');
+    var sourceName = String(post.sourceName || '').trim();
+    var sourceUrl = String(post.sourceUrl || '').trim();
+    if (!sourceName && !/^https:\/\//i.test(sourceUrl)) {
+      source.classList.add('hidden');
+      return;
+    }
+    document.getElementById('article-source-name').textContent = sourceName || 'Liên kết nguồn gốc';
+    var dateNode = document.getElementById('article-source-date');
+    dateNode.textContent = post.sourcePublishedOn ? `Nguồn công bố: ${post.sourcePublishedOn}` : '';
+    dateNode.hidden = !post.sourcePublishedOn;
+    var link = document.getElementById('article-source-link');
+    if (/^https:\/\//i.test(sourceUrl)) {
+      link.href = sourceUrl;
+      link.classList.remove('hidden');
+    } else {
+      link.removeAttribute('href');
+      link.classList.add('hidden');
+    }
+    source.classList.remove('hidden');
+  }
+
   function renderPost(post) {
     document.getElementById('article-loading').hidden = true;
     document.getElementById('article-not-found').classList.add('hidden');
@@ -44,6 +67,7 @@
     document.getElementById('article-body').innerHTML = paragraphs.map(function (paragraph) {
       return '<p>' + escapeHtml(paragraph.trim()) + '</p>';
     }).join('');
+    renderSource(post);
     updateMeta(post);
   }
 

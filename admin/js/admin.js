@@ -88,6 +88,8 @@
     $('#cancel-content-post-edit').hidden = true;
     $('#content-post-current-cover').hidden = true;
     $('#content-post-current-cover').textContent = '';
+    $('#content-post-automation-note').hidden = true;
+    $('#content-post-automation-note').textContent = '';
     delete $('#content-post-slug').dataset.edited;
     removeFileInputValue('content-post-cover-file');
   }
@@ -133,12 +135,23 @@
     $('#content-post-eyebrow').value = post.eyebrow || '';
     $('#content-post-excerpt').value = post.excerpt || '';
     $('#content-post-body').value = post.body || '';
+    $('#content-post-source-name').value = post.source_name || '';
+    $('#content-post-source-url').value = post.source_url || '';
+    $('#content-post-source-date').value = post.source_published_on || '';
     $('#content-post-form-title').textContent = `Chỉnh sửa: ${post.title}`;
     $('#save-content-post-label').textContent = 'Lưu thay đổi';
     $('#cancel-content-post-edit').hidden = false;
     const coverInfo = $('#content-post-current-cover');
     coverInfo.textContent = post.cover_image_path ? 'Đã có ảnh cover public. Chọn ảnh mới để thay thế.' : 'Chưa có ảnh cover.';
     coverInfo.hidden = false;
+    const automationNote = $('#content-post-automation-note');
+    if (post.origin === 'daily-source') {
+      automationNote.textContent = `Bản nháp tự động từ nguồn nhà nước${post.automation_run_id ? ` · lượt chạy ${post.automation_run_id}` : ''}. Hãy đối chiếu URL và nội dung trước khi xuất bản.`;
+      automationNote.hidden = false;
+    } else {
+      automationNote.hidden = true;
+      automationNote.textContent = '';
+    }
     window.scrollTo({ top: $('#content-post-form').getBoundingClientRect().top + window.scrollY - 24, behavior: 'smooth' });
   }
 
@@ -249,9 +262,14 @@
       const isPublished = post.status === 'published';
       const statusClass = isPublished ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-amber-50 text-amber-700 border-amber-200';
       const detailLink = escapeHtml(contentPostUrl(post));
+      const sourceLink = post.source_url && /^https:\/\//i.test(post.source_url)
+        ? `<a href="${escapeHtml(post.source_url)}" target="_blank" rel="noopener noreferrer" class="font-semibold text-forest underline decoration-forest/25 underline-offset-4 hover:decoration-forest">Mở nguồn</a>`
+        : '';
+      const originLabel = post.origin === 'daily-source' ? ' · Tạo tự động' : '';
       return `<article class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-        <div class="flex items-start justify-between gap-4"><div><p class="text-xs font-bold uppercase tracking-[0.14em] text-slate-400">${escapeHtml(categoryLabel(post.category))}</p><h4 class="mt-1 font-semibold text-slate-900">${escapeHtml(post.title)}</h4><p class="mt-1 text-sm text-slate-500">${escapeHtml(homeSlotLabel(post.home_slot))} · Thứ tự ${Number(post.display_order || 0)}</p></div><span class="shrink-0 rounded-full border px-2.5 py-1 text-xs font-semibold ${statusClass}">${isPublished ? 'Đã xuất bản' : 'Bản nháp'}</span></div>
+        <div class="flex items-start justify-between gap-4"><div><p class="text-xs font-bold uppercase tracking-[0.14em] text-slate-400">${escapeHtml(categoryLabel(post.category))}</p><h4 class="mt-1 font-semibold text-slate-900">${escapeHtml(post.title)}</h4><p class="mt-1 text-sm text-slate-500">${escapeHtml(homeSlotLabel(post.home_slot))} · Thứ tự ${Number(post.display_order || 0)}${originLabel}</p></div><span class="shrink-0 rounded-full border px-2.5 py-1 text-xs font-semibold ${statusClass}">${isPublished ? 'Đã xuất bản' : 'Bản nháp'}</span></div>
         <p class="mt-3 line-clamp-2 text-sm leading-6 text-slate-600">${escapeHtml(post.excerpt || 'Chưa có tóm tắt.')}</p>
+        ${post.source_name || sourceLink ? `<p class="mt-3 text-xs leading-5 text-slate-500">Nguồn: ${escapeHtml(post.source_name || 'Liên kết tham khảo')}${sourceLink ? ` · ${sourceLink}` : ''}</p>` : ''}
         <div class="mt-4 flex flex-wrap gap-2"><button type="button" data-content-action="edit" data-id="${post.id}" class="flex-1 rounded-xl border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700 transition hover:border-[#1e3b2e] hover:text-[#1e3b2e]">Chỉnh sửa</button>${isPublished ? `<a href="${detailLink}" target="_blank" rel="noopener noreferrer" class="rounded-xl border border-slate-300 px-3 py-2 text-sm font-semibold text-forest transition hover:border-forest">Xem</a>` : ''}<button type="button" data-content-action="delete" data-id="${post.id}" class="rounded-xl border border-red-200 px-3 py-2 text-sm font-semibold text-red-700 transition hover:bg-red-50">Xóa</button></div>
       </article>`;
     }).join('');
@@ -386,6 +404,9 @@
       const coverFile = $('#content-post-cover-file').files[0];
       assertFile(coverFile, IMAGE_TYPES, 'Ảnh cover bài viết');
 
+      const sourceUrl = $('#content-post-source-url').value.trim();
+      if (sourceUrl && !/^https:\/\//i.test(sourceUrl)) throw new Error('URL nguồn cần bắt đầu bằng https://.');
+
       const postId = state.editingContentPost ? state.editingContentPost.id : crypto.randomUUID();
       let coverImagePath = state.editingContentPost?.cover_image_path || null;
       if (coverFile) coverImagePath = await uploadFile('property-media', coverFile, `${state.session.user.id}/content/${postId}`);
@@ -403,6 +424,12 @@
         status: $('#content-post-status').value,
         cover_image_path: coverImagePath,
         author_id: state.editingContentPost?.author_id || state.session.user.id,
+        source_name: $('#content-post-source-name').value.trim() || null,
+        source_url: sourceUrl || null,
+        source_published_on: $('#content-post-source-date').value || null,
+        source_fingerprint: state.editingContentPost?.source_url === sourceUrl ? state.editingContentPost.source_fingerprint || null : null,
+        origin: state.editingContentPost?.source_url === sourceUrl ? state.editingContentPost?.origin || 'manual' : 'manual',
+        automation_run_id: state.editingContentPost?.source_url === sourceUrl ? state.editingContentPost?.automation_run_id || null : null,
       };
       const query = state.editingContentPost
         ? supabaseClient.from('content_posts').update(payload).eq('id', postId)
