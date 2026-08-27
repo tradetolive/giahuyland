@@ -4,7 +4,7 @@ Website public tiếp tục chạy trên GitHub Pages. Dữ liệu danh sách b�
 
 | Thành phần | Mục đích | Quyền truy cập |
 |---|---|---|
-| `public.listings` | Nội dung dự án/bài đăng hiển thị ngoài website | Khách chỉ đọc dòng `published`; admin tạo/sửa/xóa |
+| `public.listings` | Nội dung dự án/bài đăng hiển thị ngoài website và tại `chi-tiet.html?slug=…` | Khách chỉ đọc dòng `published`; admin tạo/sửa/xóa |
 | `public.products` | Bảng legacy không còn được website/dashboard truy vấn | Data API của `anon`/`authenticated` đã bị khóa; không thay thế bằng `service_role` ở frontend |
 | `public.admin_users` | Danh sách tài khoản có quyền quản trị | Người dùng thường không đọc được; hàm kiểm tra quyền dùng nội bộ |
 | Bucket `property-media` | Ảnh minh họa dự án để hiển thị công khai | Khách xem ảnh; admin tải lên, thay hoặc xóa |
@@ -14,5 +14,11 @@ Website public tiếp tục chạy trên GitHub Pages. Dữ liệu danh sách b�
 ## Nguyên tắc an toàn
 
 Website không dùng `service_role` key ở frontend. Chỉ Supabase publishable key xuất hiện trong browser; RLS quyết định mọi quyền đọc/ghi theo session đăng nhập. Ảnh sổ đỏ không dùng bucket public và không được render ở trang danh sách công khai, nhằm tránh lộ thông tin cá nhân/tài liệu pháp lý. Khách truy cập có thể biết URL `/admin/`, nhưng không thể đọc hoặc thay đổi dữ liệu nếu không đăng nhập bằng tài khoản đã được cấp quyền.
+
+## URL chi tiết và liên hệ theo bài đăng
+
+Mỗi listing đã xuất bản có URL cố định dạng `chi-tiet.html?slug=<slug>`. Trang chi tiết luôn truy vấn thêm điều kiện `status = 'published'`; slug không tồn tại hoặc bản nháp chỉ nhận trang thông báo chung, không rò rỉ nội dung. URL này là link được dùng trên card, trong nút sao chép và khi khách liên hệ.
+
+Các nút Zalo/Messenger sao chép trước tên listing và URL chi tiết, rồi mở điểm liên hệ tương ứng. Website không tự gửi tin nhắn thay khách. Trước khi xuất bản, chỉ đặt ảnh marketing không có dữ liệu định danh trong cover/thư viện public; ảnh sổ đỏ, giấy tờ hoặc tệp có thông tin cá nhân phải nằm trong bucket `property-documents` private.
 
 Tài khoản quản trị đầu tiên sẽ được tạo trong Supabase Auth bằng email do chủ website kiểm soát, rồi được thêm một lần vào `admin_users` qua SQL hướng dẫn. Email được dùng hiện tại là `tatylic@gmail.com`; bạn có thể thay bằng email quản trị khác khi cấu hình.

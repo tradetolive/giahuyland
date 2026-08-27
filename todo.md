@@ -9,3 +9,19 @@
 - [x] Xác minh Data API anonymous bị từ chối đọc `products` với HTTP 401 / PostgREST error 42501.
 - [x] Xác minh sau hardening: Data API public của `listings` vẫn trả HTTP 200 và preview hiển thị listing published ở section mới.
 - [ ] Kiểm thử truy cập anonymous/admin, trang công khai và workflow GitHub Pages sau khi hợp nhất.
+
+## Trang chi tiết và liên hệ theo bất động sản
+
+- [ ] Thiết kế URL chi tiết theo slug, đảm bảo chỉ hiển thị listing đã xuất bản.
+- [ ] Thêm trang chi tiết với thông số, ảnh public, liên kết quay lại danh sách và metadata phù hợp.
+- [ ] Chuyển nút card sang trang chi tiết; tạo liên kết Zalo/Messenger gồm URL bài đăng.
+- [x] Kiểm thử URL hợp lệ: dữ liệu published, ảnh public, thông số và nút liên hệ tải đúng theo slug.
+- [x] Kiểm thử sao chép: nút sao chép tạo thông điệp gồm tên + URL bài đăng và hiển thị xác nhận.
+- [x] Kiểm thử slug không tồn tại: hiển thị trang thông báo an toàn, không render dữ liệu listing.
+- [ ] Kiểm thử slug không tồn tại/draft và xác nhận liên kết mở Zalo/Messenger theo ngữ cảnh listing.
+- [x] Kiểm tra giao diện card: các listing published đều hiển thị CTA “Xem chi tiết & liên hệ”, Zalo và Messenger.
+- [ ] Kiểm tra thao tác điều hướng trực tiếp từ CTA card sang URL chi tiết theo slug.
+- [x] Kiểm tra Zalo: mở đúng tài khoản liên hệ và sao chép tên + URL bài đăng, không tự gửi tin nhắn.
+- [x] Kiểm tra Messenger: mở đúng cuộc trò chuyện đích và sao chép tên + URL bài đăng, không tự gửi tin nhắn.
+- [x] Kiểm tra card: ảnh/sơ đồ và tiêu đề đều render thành link nội bộ theo slug của listing.
+- [ ] Hợp nhất, deploy GitHub Pages và xác minh các URL production.
