@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://glittery-jelly-4ba968.netlify.app/sitemap.xml
+Sitemap: https://giahuyland.netlify.app/sitemap.xml
