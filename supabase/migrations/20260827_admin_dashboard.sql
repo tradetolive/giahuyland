@@ -79,6 +79,8 @@ alter table public.listings enable row level security;
 
 revoke all on table public.admin_users from anon, authenticated;
 revoke all on table public.listings from anon, authenticated;
+-- Dashboard chỉ đọc được bản ghi vai trò của chính user hiện tại nhờ policy ở dưới.
+grant select on table public.admin_users to authenticated;
 grant select on table public.listings to anon, authenticated;
 grant insert, update, delete on table public.listings to authenticated;
 

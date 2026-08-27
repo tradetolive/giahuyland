@@ -16,6 +16,8 @@ select id from auth.users where email = 'tatylic@gmail.com'
 on conflict (user_id) do nothing;
 ```
 
+Migration đã cấp quyền `SELECT` tối thiểu cho nhóm `authenticated` trên bảng vai trò, nhưng policy RLS chỉ cho phép mỗi user đọc dòng có `user_id` của chính họ. Dashboard cần quyền đọc giới hạn này để xác minh phiên đăng nhập là quản trị; không user nào có thể đọc vai trò của người khác.
+
 Chỉ các user có mặt trong `public.admin_users` mới có quyền đăng, sửa, xóa listing hoặc upload/xóa ảnh.
 
 ## 3. Cấu hình URL cho Auth
