@@ -1,8 +1,8 @@
 /**
  * GiaHuy Land — front-end behavior.
  * Renders listings from the in-memory GIAHUY_PRODUCTS data set, wires up
- * navigation, scroll reveals, price filtering, and the Netlify Forms AJAX
- * submission for the lead-capture form.
+ * navigation, scroll reveals, price filtering, contact-link sharing, and the
+ * mailto lead-capture form. Thiết kế giữ danh sách lô đất là điểm chuyển đổi chính.
  */
 (function () {
   'use strict';
@@ -32,6 +32,20 @@
     return map[accent] || map.forest;
   }
 
+  function detailHref(product) {
+    var slug = String(product.slug || product.id || '')
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '');
+    return 'chi-tiet.html?slug=' + encodeURIComponent(slug);
+  }
+
+  function detailUrl(product) {
+    if (typeof window.getListingDetailUrl === 'function') return window.getListingDetailUrl(product);
+    return new URL(detailHref(product), window.location.href).href;
+  }
+
   function parcelSvg(product) {
     var a = accentClasses(product.accent);
     var w = 220;
@@ -59,14 +73,19 @@
     var imageUrl = safeAssetUrl(product.image);
     var productName = escapeHtml(product.name);
     var productId = escapeHtml(product.id);
+    var productTitle = escapeHtml(product.name);
+    var productDetailHref = detailHref(product);
+    var productDetailUrl = escapeHtml(detailUrl(product));
     var priceLabel = Number.isFinite(price) ? price.toFixed(2) + ' tỷ' : 'Liên hệ';
     var areaLabel = Number.isFinite(area) ? money.format(area) + ' m²' : 'Liên hệ';
     var frontageLabel = Number.isFinite(frontage) ? frontage + ' m' : 'Liên hệ';
     return (
       '<article class="reveal group rounded-2xl bg-sand ring-1 ' + a.ring + ' p-5 flex flex-col gap-4 transition duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-ink/10" data-price="' + (Number.isFinite(price) ? price : 0) + '">' +
-        (imageUrl ? '<div class="rounded-lg overflow-hidden block bg-cream/70"><img src="' + imageUrl + '" alt="Ảnh minh họa - ' + productName + '" class="w-full h-48 object-cover"></div>' : '<div class="rounded-xl bg-cream/70 p-3">' + parcelSvg(product) + '</div>') +
+        (imageUrl
+          ? '<a href="' + productDetailHref + '" class="block overflow-hidden rounded-lg bg-cream/70 focus:outline-none focus:ring-2 focus:ring-clay" aria-label="Xem chi tiết ' + productName + '"><img src="' + imageUrl + '" alt="Ảnh minh họa - ' + productName + '" class="h-48 w-full object-cover transition duration-300 group-hover:scale-[1.03]"></a>'
+          : '<a href="' + productDetailHref + '" class="block rounded-xl bg-cream/70 p-3 focus:outline-none focus:ring-2 focus:ring-clay" aria-label="Xem chi tiết ' + productName + '">' + parcelSvg(product) + '</a>') +
         '<div class="flex items-start justify-between gap-3">' +
-          '<h3 class="font-display text-lg leading-snug text-ink">' + productName + '</h3>' +
+          '<h3 class="font-display text-lg leading-snug text-ink"><a href="' + productDetailHref + '" class="hover:text-clay transition-colors">' + productName + '</a></h3>' +
           '<span class="shrink-0 rounded-full px-3 py-1 text-xs font-semibold ' + a.chip + '">' + priceLabel + '</span>' +
         '</div>' +
         '<dl class="grid grid-cols-2 gap-y-1.5 text-sm text-ink/70">' +
@@ -76,16 +95,16 @@
           '<dt class="text-ink/45">Pháp lý</dt><dd>' + escapeHtml(product.legal) + '</dd>' +
         '</dl>' +
         '<p class="text-sm text-ink/60 italic">' + escapeHtml(product.highlight) + '</p>' +
-        '<a href="#bao-gia" data-plot="' + productId + '" class="plot-cta mt-auto inline-flex items-center justify-center gap-2 rounded-full bg-ink px-4 py-2.5 text-sm font-semibold text-cream transition hover:bg-forest">' +
-          'Nhận tư vấn lô này' +
+        '<a href="' + productDetailHref + '" data-plot="' + productId + '" class="plot-cta mt-auto inline-flex items-center justify-center gap-2 rounded-full bg-ink px-4 py-2.5 text-sm font-semibold text-cream transition hover:bg-forest">' +
+          'Xem chi tiết & liên hệ' +
           '<svg class="h-4 w-4" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M4 10h12M11 5l5 5-5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
         '</a>' +
         '<div class="flex gap-2 mt-2">' +
-          '<a href="https://zalo.me/0854141414" target="_blank" rel="noopener noreferrer" title="Liên hệ qua Zalo" class="flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg bg-white px-3 py-2 text-xs font-semibold text-blue-600 transition hover:bg-gray-100">' +
+          '<a href="https://zalo.me/0854141414" target="_blank" rel="noopener noreferrer" data-listing-contact="zalo" data-listing-title="' + productTitle + '" data-listing-url="' + productDetailUrl + '" title="Mở Zalo và sao chép link bài đăng" class="flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg bg-white px-3 py-2 text-xs font-semibold text-blue-600 transition hover:bg-gray-100">' +
             '<i class="fas fa-comment text-sm" aria-hidden="true"></i>' +
             'Zalo' +
           '</a>' +
-          '<a href="https://m.me/anhladenhoi" target="_blank" rel="noopener noreferrer" title="Liên hệ qua Messenger" class="flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg bg-blue-600 px-3 py-2 text-xs font-semibold text-white transition hover:bg-blue-700">' +
+          '<a href="https://m.me/anhladenhoi" target="_blank" rel="noopener noreferrer" data-listing-contact="messenger" data-listing-title="' + productTitle + '" data-listing-url="' + productDetailUrl + '" title="Mở Messenger và sao chép link bài đăng" class="flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg bg-blue-600 px-3 py-2 text-xs font-semibold text-white transition hover:bg-blue-700">' +
             '<i class="fab fa-facebook-messenger text-sm" aria-hidden="true"></i>' +
             'Messenger' +
           '</a>' +
