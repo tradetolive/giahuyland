@@ -57,6 +57,16 @@
           'Nhận tư vấn lô này' +
           '<svg class="h-4 w-4" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M4 10h12M11 5l5 5-5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
         '</a>' +
+        '<div class="flex gap-2 mt-2">' +
+          '<a href="https://zalo.me/0854141414" target="_blank" rel="noopener noreferrer" title="Liên hệ qua Zalo" class="flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg bg-blue-500 px-3 py-2 text-xs font-semibold text-white transition hover:bg-blue-600">' +
+            '<svg class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1.5 7h3v3h-3z"/></svg>' +
+            'Zalo' +
+          '</a>' +
+          '<a href="https://m.me/anhladenhoi" target="_blank" rel="noopener noreferrer" title="Liên hệ qua Messenger" class="flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg bg-blue-600 px-3 py-2 text-xs font-semibold text-white transition hover:bg-blue-700">' +
+            '<svg class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 13h-2v-2h2zm0-4h-2V7h2z"/></svg>' +
+            'Messenger' +
+          '</a>' +
+        '</div>' +
       '</article>'
     );
   }
