@@ -24,9 +24,11 @@ Chỉ các user có mặt trong `public.admin_users` mới có quyền đăng, s
 
 Vào **Authentication → URL Configuration**. Đặt Site URL là `https://tradetolive.github.io/giahuyland/`. Trong Additional Redirect URLs, thêm `https://tradetolive.github.io/giahuyland/admin/`. Cấu hình này giúp Supabase xử lý session trên đúng domain GitHub Pages.
 
-## 4. Chạy kiểm tra RLS
+## 4. Kiểm tra trước khi vận hành
 
-File `supabase/tests/listings_rls.test.sql` mô tả các kiểm tra quyền read/write. Nếu bạn đã cài Supabase CLI ở máy local, chạy test database theo tài liệu Supabase. Nếu chưa có CLI, ít nhất hãy thử đăng nhập admin, rồi mở website ẩn danh để bảo đảm khách chỉ đọc được bài có `status = published`.
+File `supabase/tests/listings_rls.test.sql` mô tả các kiểm tra quyền read/write. Nếu bạn đã cài Supabase CLI ở máy local, chạy test database theo tài liệu Supabase. Nếu chưa có CLI, tối thiểu hãy xác minh admin tạo được **Bản nháp**, request anonymous không đọc được bản nháp, upload được một ảnh public/tài liệu private thử và xóa sạch dữ liệu thử sau đó.
+
+Đợt kiểm thử đầu tiên đã xác nhận các luồng login, insert draft, RLS anonymous, upload cover public, upload tài liệu private qua signed URL và cleanup. Khi thay đổi migration/policy hoặc nâng cấp dashboard, hãy lặp lại các kiểm tra này bằng dữ liệu không nhạy cảm trước khi dùng tài liệu thực.
 
 ## 5. Dữ liệu và tài liệu pháp lý
 

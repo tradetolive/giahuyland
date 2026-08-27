@@ -349,6 +349,12 @@
   function bindEvents() {
     $('#login-form').addEventListener('submit', signIn);
     $('#listing-form').addEventListener('submit', saveListing);
+    // Giữ xác thực HTML5, đồng thời hiển thị lỗi trong vùng trạng thái dễ nhận thấy.
+    $('#listing-form').addEventListener('invalid', (event) => {
+      const field = event.target;
+      const label = document.querySelector(`label[for="${field.id}"]`);
+      setStatus(`Vui lòng kiểm tra trường: ${label ? label.textContent : 'dữ liệu bài đăng'}.`, 'error');
+    }, true);
     $('#logout-button').addEventListener('click', signOut);
     $('#cancel-edit').addEventListener('click', resetForm);
     $('#title').addEventListener('input', () => {
