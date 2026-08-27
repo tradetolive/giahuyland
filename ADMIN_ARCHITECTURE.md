@@ -9,11 +9,14 @@ Website public tiếp tục chạy trên GitHub Pages. Dữ liệu danh sách b�
 | `public.admin_users` | Danh sách tài khoản có quyền quản trị | Người dùng thường không đọc được; hàm kiểm tra quyền dùng nội bộ |
 | Bucket `property-media` | Ảnh minh họa dự án để hiển thị công khai | Khách xem ảnh; admin tải lên, thay hoặc xóa |
 | Bucket `property-documents` | Ảnh sổ đỏ/tài liệu pháp lý | Chỉ admin tải lên, xem qua URL ký tạm thời hoặc xóa |
-| `/admin/` | Đăng nhập, tạo/sửa/xóa bài, upload ảnh và xem danh sách | Chỉ tài khoản trong `admin_users` sau khi Supabase Auth xác nhận |
+| `/admin/` | Đăng nhập, yêu cầu khôi phục mật khẩu, tạo/sửa/xóa bài, upload ảnh và xem danh sách | Chỉ tài khoản trong `admin_users` sau khi Supabase Auth xác nhận |
+| `/admin/reset-password.html` | Đặt mật khẩu mới sau khi mở liên kết recovery | Chỉ session recovery hợp lệ của Supabase Auth mới thấy biểu mẫu đặt mật khẩu |
 
 ## Nguyên tắc an toàn
 
 Website không dùng `service_role` key ở frontend. Chỉ Supabase publishable key xuất hiện trong browser; RLS quyết định mọi quyền đọc/ghi theo session đăng nhập. Ảnh sổ đỏ không dùng bucket public và không được render ở trang danh sách công khai, nhằm tránh lộ thông tin cá nhân/tài liệu pháp lý. Khách truy cập có thể biết URL `/admin/`, nhưng không thể đọc hoặc thay đổi dữ liệu nếu không đăng nhập bằng tài khoản đã được cấp quyền.
+
+Luồng **Quên mật khẩu?** cũng chỉ dùng Supabase Auth trên HTTPS. Trang `/admin/` gửi yêu cầu recovery đến email người dùng nhập và dùng thông báo trung tính, không tiết lộ email nào tồn tại hoặc được cấp quyền. Email recovery dẫn đến `/admin/reset-password.html`; trang này chỉ hiển thị biểu mẫu khi Supabase xác thực một session recovery hợp lệ và sau đó gọi `auth.updateUser({ password })`. Thành công không tự cấp quyền quản trị: sau khi đăng nhập lại, dashboard vẫn kiểm tra `admin_users` qua RLS như bình thường. Mật khẩu không được đưa vào URL, source code, GitHub hay thông báo giao diện.
 
 ## URL chi tiết và liên hệ theo bài đăng
 
