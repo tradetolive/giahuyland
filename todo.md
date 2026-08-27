@@ -37,3 +37,16 @@
 - [x] Hợp nhất và deploy GitHub Pages: workflow `33060212735` thành công; `/admin/`, trang recovery và hai file JavaScript đều phản hồi HTTP 200 trên production.
 - [ ] Kiểm thử thủ công trang recovery production bằng chính email thử sau khi deploy; không tạo user thử hoặc đổi mật khẩu hiện tại trước khi người dùng chủ động xác nhận. Kiểm tra trình duyệt tự động bị timeout nên chưa dùng để đánh giá UI sau tải JavaScript.
 - [x] Cập nhật hướng dẫn vận hành và kiểm tra bảo mật; chờ xác nhận trước khi hợp nhất production.
+
+## Bài viết biên tập và liên hệ theo listing
+
+- [ ] Kiểm kê ba khối nội dung tĩnh trên trang chủ, xác định dữ liệu/ảnh/link cần chuyển về mô hình bài viết quản trị.
+- [ ] Thiết kế bảng `content_posts`, RLS và Storage theo nguyên tắc public chỉ đọc bài `published`, admin mới tạo/sửa/xóa.
+- [ ] Bổ sung biểu mẫu CRUD cho bài viết biên tập trong dashboard mà không làm thay đổi luồng listing hiện có.
+- [ ] Bổ sung danh sách và trang chi tiết bài viết công khai theo slug, chỉ tải bài `published`.
+- [ ] Nghiên cứu đường dẫn chính thức Zalo/Messenger cho nội dung soạn sẵn; không hứa hẹn tự điền nếu nền tảng không hỗ trợ chat cá nhân.
+- [ ] Kiểm thử quyền public/admin, responsive, URL chi tiết, liên hệ, SEO và cập nhật hướng dẫn trước khi xin xác nhận deploy.
+
+> Phạm vi đã chốt: chỉ triển khai quản trị nội dung tĩnh. GiaHuy Land đang sử dụng Facebook/Messenger cá nhân nên không triển khai tự điền hoặc tự gửi tin nhắn; giữ cơ chế sao chép link + mở chat hiện có.
+
+> Trạng thái migration: file `supabase/migrations/20260827_editorial_content_posts.sql` đã sẵn sàng để review/chạy. Thử mở SQL Editor qua My Browser bị timeout, nên chưa áp dụng bất kỳ DDL/RLS nào lên Supabase.

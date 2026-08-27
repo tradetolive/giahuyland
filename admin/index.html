@@ -39,7 +39,7 @@
 
       <div id="app-status" class="mt-4" role="status" aria-live="polite" hidden></div>
 
-      <section class="mt-8 grid gap-8 xl:grid-cols-[minmax(0,1.15fr)_minmax(21rem,0.85fr)]">
+	      <section class="mt-8 grid gap-8 xl:grid-cols-[minmax(0,1.15fr)_minmax(21rem,0.85fr)]">
         <form id="listing-form" class="rounded-[2rem] border border-[#d9dfd4] bg-white p-5 shadow-sm sm:p-7">
           <div class="flex items-start justify-between gap-4"><div><p class="text-xs font-bold uppercase tracking-[0.16em] text-clay">Soạn thảo</p><h2 id="form-title" class="mt-2 font-display text-2xl text-forest">Đăng nội dung mới</h2></div><button id="cancel-edit" type="button" class="text-sm font-semibold text-slate-500 hover:text-forest" hidden>Hủy chỉnh sửa</button></div>
           <input id="listing-id" type="hidden" />
@@ -73,8 +73,33 @@
         </form>
 
         <section><div class="mb-4 flex items-end justify-between"><div><p class="text-xs font-bold uppercase tracking-[0.16em] text-clay">Danh sách</p><h2 class="mt-2 font-display text-2xl text-forest">Nội dung đã lưu</h2></div><button type="button" onclick="location.reload()" class="text-sm font-semibold text-slate-500 hover:text-forest">Làm mới</button></div><div id="listing-list" class="grid gap-4"></div></section>
-      </section>
-    </section>
+	      </section>
+
+	      <!-- Biên tập nội dung: cùng thiết kế xanh rừng/kem, tách độc lập khỏi listing để tránh nhầm dữ liệu bất động sản với bài viết chuyên đề. -->
+	      <section class="mt-12 border-t border-[#d9dfd4] pt-10">
+	        <div class="mb-6 max-w-2xl"><p class="text-xs font-bold uppercase tracking-[0.16em] text-clay">Nội dung biên tập</p><h2 class="mt-2 font-display text-3xl text-forest">Trang chủ và bài viết chuyên đề</h2><p class="mt-2 text-sm leading-6 text-slate-600">Quản lý các nội dung giới thiệu, điểm nghẽn và lợi thế khu vực. Chỉ bài đã xuất bản mới xuất hiện trên website công khai.</p></div>
+	        <div class="grid gap-8 xl:grid-cols-[minmax(0,1.15fr)_minmax(21rem,0.85fr)]">
+	          <form id="content-post-form" class="rounded-[2rem] border border-[#d9dfd4] bg-white p-5 shadow-sm sm:p-7">
+	            <div class="flex items-start justify-between gap-4"><div><p class="text-xs font-bold uppercase tracking-[0.16em] text-clay">Soạn thảo</p><h3 id="content-post-form-title" class="mt-2 font-display text-2xl text-forest">Tạo bài viết mới</h3></div><button id="cancel-content-post-edit" type="button" class="text-sm font-semibold text-slate-500 hover:text-forest" hidden>Hủy chỉnh sửa</button></div>
+	            <input id="content-post-id" type="hidden" />
+	            <div class="mt-6 grid gap-4 sm:grid-cols-2">
+	              <div class="sm:col-span-2"><label for="content-post-title" class="field-label">Tiêu đề bài viết</label><input id="content-post-title" required maxlength="160" class="field-input" placeholder="Ví dụ: Lợi thế đất nền Hà An" /></div>
+	              <div><label for="content-post-slug" class="field-label">Slug URL</label><input id="content-post-slug" required pattern="[a-z0-9]+(?:-[a-z0-9]+)*" class="field-input" placeholder="loi-the-dat-nen-ha-an" /><p class="mt-1 text-xs text-slate-400">Chỉ chữ thường, số và dấu gạch ngang.</p></div>
+	              <div><label for="content-post-status" class="field-label">Trạng thái</label><select id="content-post-status" class="field-input"><option value="draft">Bản nháp — chỉ admin xem</option><option value="published">Xuất bản — khách xem được</option></select></div>
+	              <div><label for="content-post-category" class="field-label">Chuyên mục</label><select id="content-post-category" class="field-input"><option value="brand">Giới thiệu thương hiệu</option><option value="insight">Góc nhìn đầu tư</option><option value="advantage">Lợi thế khu vực</option><option value="guide">Hướng dẫn</option><option value="market-update">Cập nhật thị trường</option></select></div>
+	              <div><label for="content-post-slot" class="field-label">Vị trí trên trang chủ</label><select id="content-post-slot" class="field-input"><option value="">Chỉ có trang chi tiết</option><option value="hero">Hero giới thiệu</option><option value="pain-points">Điểm nghẽn quy hoạch</option><option value="advantages">Lợi thế Hà An</option></select><p class="mt-1 text-xs text-slate-400">Mỗi vị trí chỉ có một bài đã xuất bản.</p></div>
+	              <div><label for="content-post-order" class="field-label">Thứ tự hiển thị</label><input id="content-post-order" required min="0" max="9999" value="100" type="number" class="field-input" /></div>
+	              <div><label for="content-post-eyebrow" class="field-label">Nhãn phụ</label><input id="content-post-eyebrow" maxlength="100" class="field-input" placeholder="Ví dụ: Góc nhìn khu vực" /></div>
+	              <div class="sm:col-span-2"><label for="content-post-excerpt" class="field-label">Tóm tắt hiển thị</label><textarea id="content-post-excerpt" required maxlength="600" rows="3" class="field-input resize-y" placeholder="Nêu ngắn gọn nội dung đã được đối chiếu và không đưa ra cam kết đầu tư."></textarea></div>
+	              <div class="sm:col-span-2"><label for="content-post-body" class="field-label">Nội dung bài viết</label><textarea id="content-post-body" required maxlength="12000" rows="10" class="field-input resize-y" placeholder="Viết nội dung chi tiết. Tách đoạn bằng một dòng trống để trang chi tiết hiển thị dễ đọc."></textarea></div>
+	            </div>
+	            <div class="mt-6 rounded-2xl border border-dashed border-[#bfd0bf] bg-[#f8faf6] p-4 sm:p-5"><div class="flex items-start gap-3"><span class="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#dfeadc] text-sm font-bold text-forest">Ảnh</span><div><h4 class="font-semibold text-slate-800">Ảnh cover public</h4><p class="mt-1 text-xs leading-5 text-slate-500">Không bắt buộc. Chỉ dùng ảnh minh họa không có giấy tờ, CCCD hoặc dữ liệu cá nhân; JPEG, PNG, WEBP tối đa 5 MB.</p></div></div><div class="mt-4"><label for="content-post-cover-file" class="field-label">Tải ảnh cover</label><input id="content-post-cover-file" accept="image/jpeg,image/png,image/webp" type="file" class="file-input" /></div><p id="content-post-current-cover" class="mt-2 text-xs text-slate-500" hidden></p></div>
+	            <button id="save-content-post-button" type="submit" class="mt-7 w-full rounded-xl bg-forest px-5 py-3.5 font-semibold text-white transition hover:bg-[#142e22] disabled:cursor-not-allowed disabled:opacity-60"><span id="save-content-post-label">Lưu bài viết</span></button>
+	          </form>
+	          <section><div class="mb-4 flex items-end justify-between"><div><p class="text-xs font-bold uppercase tracking-[0.16em] text-clay">Danh sách</p><h3 class="mt-2 font-display text-2xl text-forest">Bài viết đã lưu</h3></div><button id="refresh-content-posts" type="button" class="text-sm font-semibold text-slate-500 hover:text-forest">Làm mới</button></div><div id="content-post-list" class="grid gap-4"><p class="rounded-2xl border border-dashed border-slate-300 bg-white px-5 py-8 text-sm text-slate-500">Đăng nhập để tải bài viết biên tập.</p></div></section>
+	        </div>
+	      </section>
+	    </section>
   </main>
   <style>
     .field-label { display:block; font-size:.8125rem; font-weight:600; color:#334155; }
