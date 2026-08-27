@@ -46,6 +46,7 @@
 - [x] Bổ sung danh sách và trang chi tiết bài viết công khai theo slug, chỉ tải bài `published` qua view public.
 - [ ] Nghiên cứu đường dẫn chính thức Zalo/Messenger cho nội dung soạn sẵn; không hứa hẹn tự điền nếu nền tảng không hỗ trợ chat cá nhân.
 - [x] Kiểm thử quyền public: view trả 3 bài published; bảng gốc anonymous trả 401; yêu cầu `author_id` qua view trả 400. Kiểm tra render desktop/mobile và URL slug hợp lệ/không tồn tại đã đạt. Hướng dẫn vận hành đã cập nhật; dashboard CRUD cần người dùng xác nhận thao tác sau deploy.
+- [x] Hợp nhất và deploy GitHub Pages: workflow `33063520074` thành công. Trang chủ, `/bai-viet.html`, `/admin/` và các script bài viết phản hồi HTTP 200; render production nhận dữ liệu published qua view public an toàn.
 
 > Phạm vi đã chốt: chỉ triển khai quản trị nội dung tĩnh. GiaHuy Land đang sử dụng Facebook/Messenger cá nhân nên không triển khai tự điền hoặc tự gửi tin nhắn; giữ cơ chế sao chép link + mở chat hiện có.
 
