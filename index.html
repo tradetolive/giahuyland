@@ -1,5 +1,6 @@
 <!doctype html>
 <html lang="vi">
+<!-- Thiết kế: ưu tiên lô đất đang bán ngay sau hero; tông địa chính xanh rừng–đất nung, bố cục bất đối xứng và nhịp thông tin rõ ràng. -->
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -156,7 +157,7 @@
             Nhận báo giá hôm nay
           </a>
           <a href="#san-pham" class="inline-flex items-center gap-2 rounded-full border border-ink/15 px-6 py-3.5 text-sm font-semibold text-ink transition hover:border-ink/40">
-            Xem sơ đồ lô đất
+            Xem lô đang bán
             <svg class="h-4 w-4" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M4 10h12M11 5l5 5-5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </a>
         </div>
@@ -192,6 +193,28 @@
           <p class="font-display text-2xl text-clay">1.58 <span class="text-sm text-ink/50 font-sans">tỷ / lô</span></p>
           <p class="mt-1 text-xs text-ink/60">Giá khởi điểm — lô D14, 75.9 m², sổ đỏ trao tay ngay khi ký cọc</p>
         </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRODUCTS: placed directly after hero so current listings are the first conversion path. -->
+  <section id="san-pham" class="diagonal-up bg-ink pt-24 pb-24">
+    <div class="mx-auto max-w-7xl px-5 sm:px-8">
+      <div class="flex flex-wrap items-end justify-between gap-6">
+        <div class="max-w-xl">
+          <p class="reveal text-xs font-semibold uppercase tracking-wider text-clay-light">Lô đất đang mở bán</p>
+          <h2 class="reveal reveal-delay-1 mt-4 font-display text-3xl sm:text-4xl text-cream leading-tight">Danh sách đất nền Hà An đang cập nhật</h2>
+        </div>
+        <div class="reveal reveal-delay-2 flex flex-wrap gap-2">
+          <button data-filter="all" class="rounded-full bg-ink px-4 py-2 text-xs font-semibold text-cream ring-1 ring-cream/20">Tất cả</button>
+          <button data-filter="under2" class="rounded-full bg-cream px-4 py-2 text-xs font-semibold text-ink/70">Dưới 2 tỷ</button>
+          <button data-filter="2to3" class="rounded-full bg-cream px-4 py-2 text-xs font-semibold text-ink/70">2 – 3 tỷ</button>
+          <button data-filter="over3" class="rounded-full bg-cream px-4 py-2 text-xs font-semibold text-ink/70">Trên 3 tỷ</button>
+        </div>
+      </div>
+
+      <div id="products-grid" class="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <!-- Rendered at runtime from published listings or GIAHUY_PRODUCTS fallback data. -->
       </div>
     </div>
   </section>
@@ -281,28 +304,6 @@
           <p class="font-display text-3xl text-clay">Đầm sinh thái</p>
           <p class="mt-1 text-sm text-ink/60">nhiều lô hướng view mặt nước, không bị che chắn, phù hợp xây nhà nghỉ dưỡng ven đô</p>
         </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- PRODUCTS -->
-  <section id="san-pham" class="diagonal-up bg-ink pt-24 pb-24">
-    <div class="mx-auto max-w-7xl px-5 sm:px-8">
-      <div class="flex flex-wrap items-end justify-between gap-6">
-        <div class="max-w-xl">
-          <p class="reveal text-xs font-semibold uppercase tracking-wider text-clay-light">Danh sách sản phẩm</p>
-          <h2 class="reveal reveal-delay-1 mt-4 font-display text-3xl sm:text-4xl text-cream leading-tight">6 lô đất đang mở bán tại Hà An</h2>
-        </div>
-        <div class="reveal reveal-delay-2 flex flex-wrap gap-2">
-          <button data-filter="all" class="rounded-full bg-ink px-4 py-2 text-xs font-semibold text-cream ring-1 ring-cream/20">Tất cả</button>
-          <button data-filter="under2" class="rounded-full bg-cream px-4 py-2 text-xs font-semibold text-ink/70">Dưới 2 tỷ</button>
-          <button data-filter="2to3" class="rounded-full bg-cream px-4 py-2 text-xs font-semibold text-ink/70">2 – 3 tỷ</button>
-          <button data-filter="over3" class="rounded-full bg-cream px-4 py-2 text-xs font-semibold text-ink/70">Trên 3 tỷ</button>
-        </div>
-      </div>
-
-      <div id="products-grid" class="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        <!-- Rendered at runtime from GIAHUY_PRODUCTS in js/products-data.js -->
       </div>
     </div>
   </section>

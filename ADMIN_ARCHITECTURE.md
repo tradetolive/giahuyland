@@ -4,7 +4,8 @@ Website public tiếp tục chạy trên GitHub Pages. Dữ liệu danh sách b�
 
 | Thành phần | Mục đích | Quyền truy cập |
 |---|---|---|
-| `public.products` | Nội dung dự án/bài đăng hiển thị ngoài website | Khách chỉ đọc dòng `published`; admin tạo/sửa/xóa |
+| `public.listings` | Nội dung dự án/bài đăng hiển thị ngoài website | Khách chỉ đọc dòng `published`; admin tạo/sửa/xóa |
+| `public.products` | Bảng legacy không còn được website/dashboard truy vấn | Data API của `anon`/`authenticated` đã bị khóa; không thay thế bằng `service_role` ở frontend |
 | `public.admin_users` | Danh sách tài khoản có quyền quản trị | Người dùng thường không đọc được; hàm kiểm tra quyền dùng nội bộ |
 | Bucket `property-media` | Ảnh minh họa dự án để hiển thị công khai | Khách xem ảnh; admin tải lên, thay hoặc xóa |
 | Bucket `property-documents` | Ảnh sổ đỏ/tài liệu pháp lý | Chỉ admin tải lên, xem qua URL ký tạm thời hoặc xóa |
