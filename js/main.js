@@ -59,7 +59,7 @@
         '</a>' +
         '<div class="flex gap-2 mt-2">' +
           '<a href="https://zalo.me/0854141414" target="_blank" rel="noopener noreferrer" title="Liên hệ qua Zalo" class="flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg bg-blue-500 px-3 py-2 text-xs font-semibold text-white transition hover:bg-blue-600">' +
-            '<i class="fas fa-comment text-sm" aria-hidden="true"></i>' +
+            '<svg class="h-4 w-4" viewBox="0 0 200 200" fill="currentColor" aria-hidden="true"><text x="100" y="130" font-family="Arial, sans-serif" font-size="140" font-weight="bold" fill="currentColor" text-anchor="middle" dominant-baseline="middle">Z</text></svg>' +
             'Zalo' +
           '</a>' +
           '<a href="https://m.me/anhladenhoi" target="_blank" rel="noopener noreferrer" title="Liên hệ qua Messenger" class="flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg bg-blue-600 px-3 py-2 text-xs font-semibold text-white transition hover:bg-blue-700">' +
