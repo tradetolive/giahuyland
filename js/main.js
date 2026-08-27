@@ -267,10 +267,6 @@
     form.addEventListener('submit', function (e) {
       e.preventDefault();
 
-      if (form.querySelector('input[name="bot-field"]').value) {
-        return;
-      }
-
       var phone = form.querySelector('#so_dien_thoai').value.trim();
       if (!/^0\d{9,10}$/.test(phone)) {
         status.textContent = 'Số điện thoại chưa hợp lệ — vui lòng nhập số bắt đầu bằng 0, đủ 10–11 số.';
@@ -279,32 +275,19 @@
         return;
       }
 
-      submitBtn.disabled = true;
-      submitLabel.classList.add('opacity-0');
-      submitSpinner.classList.remove('hidden');
-      status.textContent = '';
-
       var formData = new FormData(form);
-      fetch('/', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: new URLSearchParams(formData).toString(),
-      })
-        .then(function (response) {
-          if (!response.ok) throw new Error('submit-failed');
-          form.reset();
-          status.textContent = 'Đã nhận thông tin — GiaHuy Land sẽ gọi lại trong vòng 30 phút làm việc.';
-          status.className = 'mt-4 text-sm font-medium text-forest';
-        })
-        .catch(function () {
-          status.textContent = 'Gửi chưa thành công, vui lòng thử lại hoặc gọi trực tiếp hotline 0888 456 789.';
-          status.className = 'mt-4 text-sm font-medium text-clay';
-        })
-        .finally(function () {
-          submitBtn.disabled = false;
-          submitLabel.classList.remove('opacity-0');
-          submitSpinner.classList.add('hidden');
-        });
+      var mailBody = [
+        'Họ và tên: ' + (formData.get('ho_ten') || ''),
+        'Số điện thoại: ' + (formData.get('so_dien_thoai') || ''),
+        'Email: ' + (formData.get('email') || ''),
+        'Lô đất quan tâm: ' + (formData.get('lo_dat_quan_tam') || ''),
+        'Ghi chú: ' + (formData.get('ghi_chu') || ''),
+      ].join('\n');
+      var mailto = 'mailto:tatylic@gmail.com?subject=' + encodeURIComponent('Yêu cầu nhận báo giá — GiaHuy Land') + '&body=' + encodeURIComponent(mailBody);
+
+      status.textContent = 'Đang mở ứng dụng email để gửi yêu cầu của bạn.';
+      status.className = 'mt-4 text-sm font-medium text-forest';
+      window.location.href = mailto;
     });
   }
 
