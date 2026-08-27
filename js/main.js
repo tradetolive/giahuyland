@@ -41,7 +41,7 @@
     var a = accentClasses(product.accent);
     return (
       '<article class="reveal group rounded-2xl bg-sand ring-1 ' + a.ring + ' p-5 flex flex-col gap-4 transition duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-ink/10" data-price="' + product.price + '">' +
-        '<div class="rounded-xl bg-cream/70 p-3">' + parcelSvg(product) + '</div>' +
+        (product.deed ? '<a href="' + product.deed + '" target="_blank" class="rounded-lg overflow-hidden block bg-cream/70 hover:shadow-md transition"><img src="' + product.deed + '" alt="Sổ đỏ - ' + product.name + '" class="w-full h-48 object-cover"></a>' : '<div class="rounded-xl bg-cream/70 p-3">' + parcelSvg(product) + '</div>') +
         '<div class="flex items-start justify-between gap-3">' +
           '<h3 class="font-display text-lg leading-snug text-ink">' + product.name + '</h3>' +
           '<span class="shrink-0 rounded-full px-3 py-1 text-xs font-semibold ' + a.chip + '">' + product.price.toFixed(2) + ' tỷ</span>' +
