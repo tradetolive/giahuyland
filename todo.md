@@ -34,5 +34,6 @@
 - [x] Cấu hình Redirect URL production và kiểm thử Supabase chấp nhận yêu cầu recovery với HTTP 200. URL production: `https://tradetolive.github.io/giahuyland/admin/reset-password.html`.
 - [x] Chủ dự án đã xác nhận lưu Redirect URL; một email khôi phục thử được gửi đến email admin mà không thay đổi mật khẩu.
 - [x] Kết nối điều khiển My Browser từng hết thời gian phản hồi; chủ dự án đã tự lưu Redirect URL và xác nhận lại bằng chat.
-- [ ] Kiểm thử thủ công trang recovery production bằng chính email thử sau khi deploy; không tạo user thử hoặc đổi mật khẩu hiện tại trước khi người dùng chủ động xác nhận.
+- [x] Hợp nhất và deploy GitHub Pages: workflow `33060212735` thành công; `/admin/`, trang recovery và hai file JavaScript đều phản hồi HTTP 200 trên production.
+- [ ] Kiểm thử thủ công trang recovery production bằng chính email thử sau khi deploy; không tạo user thử hoặc đổi mật khẩu hiện tại trước khi người dùng chủ động xác nhận. Kiểm tra trình duyệt tự động bị timeout nên chưa dùng để đánh giá UI sau tải JavaScript.
 - [x] Cập nhật hướng dẫn vận hành và kiểm tra bảo mật; chờ xác nhận trước khi hợp nhất production.
