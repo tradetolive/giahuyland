@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin - GiaHuy Land</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    .loading { opacity: 0.6; pointer-events: none; }
+  </style>
+</head>
+<body class="bg-gradient-to-br from-slate-900 to-slate-800">
+  <div class="min-h-screen p-4 sm:p-8">
+    <div class="max-w-6xl mx-auto">
+      <!-- Header -->
+      <div class="flex justify-between items-center mb-8">
+        <h1 class="text-3xl font-bold text-white">GiaHuy Land Admin</h1>
+        <button onclick="logout()" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg">Logout</button>
+      </div>
+
+      <!-- Add New Product Form -->
+      <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+        <h2 class="text-2xl font-bold mb-6 text-gray-800">Thêm Bài Đăng Mới</h2>
+        <form id="productForm" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <input type="text" id="id" placeholder="Mã Lô (VD: HaAn_Khu11)" class="col-span-1 px-4 py-2 border rounded-lg" required>
+          <input type="text" id="name" placeholder="Tên/Tiêu Đề" class="col-span-1 px-4 py-2 border rounded-lg" required>
+          
+          <input type="number" id="area" placeholder="Diện Tích (m²)" step="0.1" class="col-span-1 px-4 py-2 border rounded-lg" required>
+          <input type="number" id="frontage" placeholder="Mặt Tiền (m)" step="0.1" class="col-span-1 px-4 py-2 border rounded-lg" required>
+          
+          <input type="number" id="price" placeholder="Giá (tỷ VND)" step="0.01" class="col-span-1 px-4 py-2 border rounded-lg" required>
+          <select id="direction" class="col-span-1 px-4 py-2 border rounded-lg" required>
+            <option value="">Chọn Hướng</option>
+            <option value="Đông">Đông</option>
+            <option value="Tây">Tây</option>
+            <option value="Nam">Nam</option>
+            <option value="Bắc">Bắc</option>
+            <option value="Đông Nam">Đông Nam</option>
+            <option value="Đông Bắc">Đông Bắc</option>
+            <option value="Tây Nam">Tây Nam</option>
+            <option value="Tây Bắc">Tây Bắc</option>
+          </select>
+          
+          <input type="text" id="legal" placeholder="Pháp Lý" class="col-span-1 md:col-span-2 px-4 py-2 border rounded-lg" required>
+          <textarea id="highlight" placeholder="Điểm Nổi Bật" class="col-span-1 md:col-span-2 px-4 py-2 border rounded-lg" rows="2"></textarea>
+          
+          <select id="accent" class="col-span-1 px-4 py-2 border rounded-lg" required>
+            <option value="">Chọn Màu</option>
+            <option value="forest">Xanh Lục (Forest)</option>
+            <option value="clay">Đỏ Đất (Clay)</option>
+            <option value="gold">Vàng (Gold)</option>
+          </select>
+          
+          <div class="col-span-1 md:col-span-2">
+            <label class="block text-sm font-medium mb-2">Ảnh Sổ Đỏ (bắt buộc)</label>
+            <input type="file" id="deedFile" accept="image/*" class="w-full px-4 py-2 border rounded-lg" required>
+          </div>
+          
+          <div class="col-span-1 md:col-span-2">
+            <label class="block text-sm font-medium mb-2">Ảnh Đất (tùy chọn)</label>
+            <input type="file" id="imageFile" accept="image/*" class="w-full px-4 py-2 border rounded-lg">
+          </div>
+          
+          <button type="submit" class="col-span-1 md:col-span-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold">
+            Thêm Bài Đăng
+          </button>
+        </form>
+      </div>
+
+      <!-- Products List -->
+      <div class="bg-white rounded-lg shadow-lg p-6">
+        <h2 class="text-2xl font-bold mb-6 text-gray-800">Danh Sách Bài Đăng</h2>
+        <div id="productsList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div class="text-center text-gray-500 py-8">Đang tải...</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const SUPABASE_URL = 'https://yxzoeicxoppupxxilzjh.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_RC91v70_KIB-EKYtqYoiVQ_RuRxctW4';
+    
+    const { createClient } = window.supabase;
+    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    let products = [];
+    let editingId = null;
+
+    async function init() {
+      await loadProducts();
+      document.getElementById('productForm').addEventListener('submit', handleSubmit);
+    }
+
+    async function loadProducts() {
+      try {
+        const { data, error } = await supabase
+          .from('products')
+          .select('*')
+          .order('created_at', { ascending: false });
+        
+        if (error) throw error;
+        
+        products = data || [];
+        renderProducts();
+      } catch (err) {
+        alert('Lỗi tải dữ liệu: ' + err.message);
+      }
+    }
+
+    function renderProducts() {
+      const container = document.getElementById('productsList');
+      
+      if (products.length === 0) {
+        container.innerHTML = '<div class="text-center text-gray-500 py-8 col-span-full">Chưa có bài đăng nào</div>';
+        return;
+      }
+
+      container.innerHTML = products.map(p => `
+        <div class="border rounded-lg p-4 bg-gray-50">
+          <div class="flex justify-between items-start mb-2">
+            <div>
+              <h3 class="font-bold text-gray-800">${p.name}</h3>
+              <p class="text-sm text-gray-600">ID: ${p.id}</p>
+            </div>
+            <button onclick="editProduct('${p.id}')" class="text-blue-600 hover:text-blue-800 text-sm">Sửa</button>
+          </div>
+          <div class="text-sm text-gray-600 space-y-1">
+            <p>📐 ${p.area}m² - Mặt tiền: ${p.frontage}m</p>
+            <p>💰 ${p.price.toFixed(2)} tỷ - Hướng: ${p.direction}</p>
+            <p>📜 ${p.legal}</p>
+          </div>
+          <button onclick="deleteProduct('${p.id}')" class="mt-3 w-full bg-red-100 hover:bg-red-200 text-red-700 px-3 py-2 rounded text-sm">
+            Xóa
+          </button>
+        </div>
+      `).join('');
+    }
+
+    async function handleSubmit(e) {
+      e.preventDefault();
+      
+      const form = e.target;
+      form.classList.add('loading');
+
+      try {
+        const deedFile = document.getElementById('deedFile').files[0];
+        if (!deedFile) {
+          alert('Vui lòng chọn ảnh sổ đỏ');
+          form.classList.remove('loading');
+          return;
+        }
+
+        // Upload ảnh
+        const timestamp = Date.now();
+        const deedPath = `${timestamp}-deed-${deedFile.name}`;
+        
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from('products')
+          .upload(deedPath, deedFile);
+        
+        if (uploadError) throw uploadError;
+
+        const deedUrl = `${SUPABASE_URL}/storage/v1/object/public/products/${deedPath}`;
+
+        // Lưu product
+        const productData = {
+          id: document.getElementById('id').value,
+          name: document.getElementById('name').value,
+          area: parseFloat(document.getElementById('area').value),
+          frontage: parseFloat(document.getElementById('frontage').value),
+          price: parseFloat(document.getElementById('price').value),
+          direction: document.getElementById('direction').value,
+          legal: document.getElementById('legal').value,
+          highlight: document.getElementById('highlight').value,
+          accent: document.getElementById('accent').value,
+          deed: deedUrl,
+          image: null,
+        };
+
+        const { error } = await supabase
+          .from('products')
+          .insert([productData]);
+        
+        if (error) throw error;
+
+        alert('Thêm bài đăng thành công!');
+        form.reset();
+        await loadProducts();
+      } catch (err) {
+        alert('Lỗi: ' + err.message);
+      } finally {
+        form.classList.remove('loading');
+      }
+    }
+
+    async function deleteProduct(id) {
+      if (!confirm('Xác nhận xóa bài đăng này?')) return;
+      
+      try {
+        const { error } = await supabase
+          .from('products')
+          .delete()
+          .eq('id', id);
+        
+        if (error) throw error;
+        
+        alert('Xóa thành công!');
+        await loadProducts();
+      } catch (err) {
+        alert('Lỗi: ' + err.message);
+      }
+    }
+
+    function editProduct(id) {
+      alert('Chức năng sửa sẽ được thêm vào sớm');
+    }
+
+    function logout() {
+      alert('Logout thành công');
+      // Sau này sẽ add auth real
+    }
+
+    init();
+  </script>
+</body>
+</html>

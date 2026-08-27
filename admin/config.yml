@@ -1,0 +1,34 @@
+backend:
+  name: github
+  repo: tradetolive/giahuyland
+  branch: main
+  auth_endpoint: api/auth
+  commit_messages:
+    create: 'Add property listing: {{slug}}'
+    update: 'Update property: {{slug}}'
+    delete: 'Delete property: {{slug}}'
+    uploadMedia: 'Upload media: {{path}}'
+    deleteMedia: 'Delete media: {{path}}'
+
+media_folder: images/products
+public_folder: /images/products
+
+collections:
+  - name: products
+    label: Bất Động Sản
+    label_singular: Bài Đăng
+    folder: _data
+    create: true
+    slug: '{{slug}}'
+    fields:
+      - { label: Mã Lô, name: id, widget: string, hint: 'Ví dụ: HaAn_Khu11_2026_BDS001' }
+      - { label: Tên/Tiêu Đề, name: name, widget: string, hint: 'Ví dụ: Trung tâm Khu 11 phường Hà An' }
+      - { label: Diện Tích (m²), name: area, widget: number, value_type: float }
+      - { label: Mặt Tiền (m), name: frontage, widget: number, value_type: float }
+      - { label: Giá (tỷ VND), name: price, widget: number, value_type: float, hint: '2.91 = 2.91 tỷ' }
+      - { label: Hướng, name: direction, widget: select, options: ['Đông', 'Tây', 'Nam', 'Bắc', 'Đông Nam', 'Đông Bắc', 'Tây Nam', 'Tây Bắc'] }
+      - { label: Pháp Lý, name: legal, widget: string, hint: 'Ví dụ: Sổ đỏ chính chủ, thổ cư 100%' }
+      - { label: Điểm Nổi Bật, name: highlight, widget: text, hint: 'Mô tả ngắn về lô đất' }
+      - { label: Màu Sắc, name: accent, widget: select, options: ['forest', 'clay', 'gold'], help: 'forest=xanh, clay=đỏ, gold=vàng' }
+      - { label: Ảnh Sổ Đỏ, name: deed, widget: image, allow_multiple: false, hint: 'Ảnh chứng thực pháp lý' }
+      - { label: Ảnh Đất, name: image, widget: image, allow_multiple: false, required: false, hint: 'Tùy chọn - ảnh khu đất' }
