@@ -70,4 +70,15 @@ const GIAHUY_PRODUCTS = [
     highlight: 'Hướng view đầm sinh thái, không bị che chắn',
     accent: 'gold',
   },
+    {
+    id: 'HaAn_Khu11_2026_BDS001',
+    name: 'Trung tâm Khu 11 phường Hà An',
+    area: 121.6,
+    frontage: 6.8,
+    price: 2.91,
+    direction: 'Tây Bắc',
+    legal: 'Sổ đỏ chính chủ, đã tách thửa',
+    highlight: 'Mặt tiền 5m vuông vắn, Giá chỉ 1,x tỷ cho 123m2',
+    accent: 'gold',
+  },
 ];
