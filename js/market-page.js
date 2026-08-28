@@ -27,22 +27,26 @@
     '</article>';
   }
 
+  function isMarketPost(post) {
+    // New posts use navigationSection; legacy posts remain visible by their old category/slot.
+    return post.navigationSection === 'insights' || (!post.navigationSection && (post.homeSlot === 'pain-points' || ['insight', 'market-update', 'guide'].indexOf(post.category) !== -1));
+  }
+
+  function emptyState() {
+    return '<p class="rounded-2xl bg-cream/8 p-6 text-sm text-cream/60 ring-1 ring-cream/12">Chưa có bài viết phân tích thị trường được xuất bản.</p>';
+  }
+
   async function render() {
     var posts = typeof window.fetchContentPostsFromSupabase === 'function'
       ? await window.fetchContentPostsFromSupabase()
       : null;
-    if (posts === null || !posts.length) {
-      posts = (window.GIAHUY_EDITORIAL_FALLBACK || []).slice().sort(function (a, b) { return Number(a.displayOrder || 0) - Number(b.displayOrder || 0); });
-    }
-    if (!posts.length) {
-      container.innerHTML = '<p class="rounded-2xl bg-cream/8 p-6 text-sm text-cream/60 ring-1 ring-cream/12">Chưa có bài viết được xuất bản.</p>';
-      return;
-    }
-    container.innerHTML = posts.slice(0, 6).map(card).join('');
+    if (posts === null) posts = window.GIAHUY_EDITORIAL_FALLBACK || [];
+    posts = posts.filter(isMarketPost).sort(function (a, b) { return Number(a.displayOrder || 0) - Number(b.displayOrder || 0); });
+    container.innerHTML = posts.length ? posts.slice(0, 6).map(card).join('') : emptyState();
   }
 
   render().catch(function () {
-    var fallback = window.GIAHUY_EDITORIAL_FALLBACK || [];
-    container.innerHTML = fallback.length ? fallback.map(card).join('') : '<p class="rounded-2xl bg-cream/8 p-6 text-sm text-cream/60 ring-1 ring-cream/12">Chưa có bài viết được xuất bản.</p>';
+    var fallback = (window.GIAHUY_EDITORIAL_FALLBACK || []).filter(isMarketPost);
+    container.innerHTML = fallback.length ? fallback.map(card).join('') : emptyState();
   });
 })();

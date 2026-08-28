@@ -141,7 +141,6 @@
     $('#content-post-id').value = '';
     $('#content-post-source-fingerprint').value = '';
     $('#content-post-navigation').value = '';
-    $('#content-post-order').value = '100';
     $('#content-post-form-title').textContent = 'Tạo bài viết mới';
     $('#save-content-post-label').textContent = 'Lưu bài viết';
     $('#cancel-content-post-edit').hidden = true;
@@ -189,10 +188,7 @@
     $('#content-post-title').value = post.title || '';
     $('#content-post-slug').value = post.slug || '';
     $('#content-post-status').value = post.status || 'draft';
-    $('#content-post-category').value = post.category || 'insight';
-    $('#content-post-navigation').value = post.navigation_section || '';
-    $('#content-post-slot').value = post.home_slot || '';
-    $('#content-post-order').value = post.display_order == null ? '100' : post.display_order;
+    $('#content-post-navigation').value = post.navigation_section || legacyNavigationSection(post) || '';
     $('#content-post-eyebrow').value = post.eyebrow || '';
     $('#content-post-excerpt').value = post.excerpt || '';
     $('#content-post-body').value = post.body || '';
@@ -322,6 +318,13 @@
     return labels[section] || '';
   }
 
+  function legacyNavigationSection(post) {
+    if (post.home_slot === 'hero' || post.category === 'brand') return 'home';
+    if (post.home_slot === 'advantages' || post.category === 'advantage') return 'ha-an';
+    if (post.home_slot === 'pain-points' || ['insight', 'market-update', 'guide'].includes(post.category)) return 'insights';
+    return '';
+  }
+
   function renderContentPosts() {
     const list = $('#content-post-list');
     if (state.contentPosts.length === 0) {
@@ -336,10 +339,9 @@
         ? `<a href="${escapeHtml(post.source_url)}" target="_blank" rel="noopener noreferrer" class="font-semibold text-forest underline decoration-forest/25 underline-offset-4 hover:decoration-forest">Mở nguồn</a>`
         : '';
       const originLabel = post.origin === 'daily-source' ? ' · Tạo tự động' : (/facebook/i.test(post.source_name || '') ? ' · Nguồn Facebook' : '');
-      const navigationText = navigationLabel(post.navigation_section);
-      const placementText = navigationText ? `${navigationText} · ${homeSlotLabel(post.home_slot)}` : homeSlotLabel(post.home_slot);
+      const navigationText = navigationLabel(post.navigation_section || legacyNavigationSection(post)) || 'Chưa chọn mục';
       return `<article class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-        <div class="flex items-start justify-between gap-4"><div><p class="text-xs font-bold uppercase tracking-[0.14em] text-slate-400">${escapeHtml(categoryLabel(post.category))}</p><h4 class="mt-1 font-semibold text-slate-900">${escapeHtml(post.title)}</h4><p class="mt-1 text-sm text-slate-500">${escapeHtml(placementText)} · Thứ tự ${Number(post.display_order || 0)}${originLabel}</p></div><span class="shrink-0 rounded-full border px-2.5 py-1 text-xs font-semibold ${statusClass}">${isPublished ? 'Đã xuất bản' : 'Bản nháp'}</span></div>
+        <div class="flex items-start justify-between gap-4"><div><p class="text-xs font-bold uppercase tracking-[0.14em] text-clay">${escapeHtml(navigationText)}</p><h4 class="mt-1 font-semibold text-slate-900">${escapeHtml(post.title)}</h4><p class="mt-1 text-sm text-slate-500">Bài viết công khai${originLabel}</p></div><span class="shrink-0 rounded-full border px-2.5 py-1 text-xs font-semibold ${statusClass}">${isPublished ? 'Đã xuất bản' : 'Bản nháp'}</span></div>
         <p class="mt-3 line-clamp-2 text-sm leading-6 text-slate-600">${escapeHtml(post.excerpt || 'Chưa có tóm tắt.')}</p>
         ${post.source_name || sourceLink ? `<p class="mt-3 text-xs leading-5 text-slate-500">Nguồn: ${escapeHtml(post.source_name || 'Liên kết tham khảo')}${sourceLink ? ` · ${sourceLink}` : ''}</p>` : ''}
         <div class="mt-4 flex flex-wrap gap-2"><button type="button" data-content-action="edit" data-id="${post.id}" class="flex-1 rounded-xl border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700 transition hover:border-[#1e3b2e] hover:text-[#1e3b2e]">Chỉnh sửa</button>${isPublished ? `<a href="${detailLink}" target="_blank" rel="noopener noreferrer" class="rounded-xl border border-slate-300 px-3 py-2 text-sm font-semibold text-forest transition hover:border-forest">Xem</a>` : ''}<button type="button" data-content-action="delete" data-id="${post.id}" class="rounded-xl border border-red-200 px-3 py-2 text-sm font-semibold text-red-700 transition hover:bg-red-50">Xóa</button></div>
@@ -484,6 +486,9 @@
       let coverImagePath = state.editingContentPost?.cover_image_path || null;
       if (coverFile) coverImagePath = await uploadFile('property-media', coverFile, `${state.session.user.id}/content/${postId}`);
 
+      const navigationSection = $('#content-post-navigation').value;
+      if (!navigationSection) throw new Error('Hãy chọn mục navigation cho bài viết.');
+      const categoryByNavigation = { home: 'brand', listings: 'guide', map: 'guide', 'ha-an': 'advantage', 'ha-long-xanh': 'insight', insights: 'insight', contact: 'guide' };
       const payload = {
         id: postId,
         slug,
@@ -491,10 +496,11 @@
         eyebrow: $('#content-post-eyebrow').value.trim(),
         excerpt: $('#content-post-excerpt').value.trim(),
         body: $('#content-post-body').value.trim(),
-        category: $('#content-post-category').value,
-        navigation_section: $('#content-post-navigation').value || null,
-        home_slot: $('#content-post-slot').value || null,
-        display_order: Number($('#content-post-order').value),
+        category: categoryByNavigation[navigationSection] || 'insight',
+        navigation_section: navigationSection,
+        // Kỹ thuật legacy: giữ lại giá trị cũ khi edit để homepage hiện tại không bị thay đổi.
+        home_slot: state.editingContentPost?.home_slot || null,
+        display_order: Number(state.editingContentPost?.display_order ?? 100),
         status: $('#content-post-status').value,
         cover_image_path: coverImagePath,
         author_id: state.editingContentPost?.author_id || state.session.user.id,
