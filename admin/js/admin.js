@@ -140,6 +140,7 @@
     $('#content-post-form').reset();
     $('#content-post-id').value = '';
     $('#content-post-source-fingerprint').value = '';
+    $('#content-post-navigation').value = '';
     $('#content-post-order').value = '100';
     $('#content-post-form-title').textContent = 'Tạo bài viết mới';
     $('#save-content-post-label').textContent = 'Lưu bài viết';
@@ -189,6 +190,7 @@
     $('#content-post-slug').value = post.slug || '';
     $('#content-post-status').value = post.status || 'draft';
     $('#content-post-category').value = post.category || 'insight';
+    $('#content-post-navigation').value = post.navigation_section || '';
     $('#content-post-slot').value = post.home_slot || '';
     $('#content-post-order').value = post.display_order == null ? '100' : post.display_order;
     $('#content-post-eyebrow').value = post.eyebrow || '';
@@ -306,13 +308,18 @@
   }
 
   function categoryLabel(category) {
-    const labels = { brand: 'Giới thiệu thương hiệu', insight: 'Góc nhìn đầu tư', advantage: 'Lợi thế khu vực', guide: 'Hướng dẫn', 'market-update': 'Cập nhật thị trường' };
+    const labels = { brand: 'Trang chủ · Giới thiệu thương hiệu', insight: 'Phân tích thị trường', advantage: 'Hà An · Lợi thế khu vực', guide: 'Hướng dẫn', 'market-update': 'Cập nhật thị trường' };
     return labels[category] || 'Bài viết';
   }
 
   function homeSlotLabel(slot) {
-    const labels = { hero: 'Hero giới thiệu', 'pain-points': 'Điểm nghẽn quy hoạch', advantages: 'Lợi thế Hà An' };
+    const labels = { hero: 'Trang chủ · Giới thiệu tổng quan', 'pain-points': 'Phân tích thị trường · Bài nổi bật', advantages: 'Hà An · Góc nhìn khu vực' };
     return labels[slot] || 'Chỉ trang chi tiết';
+  }
+
+  function navigationLabel(section) {
+    const labels = { home: 'Trang chủ', listings: 'BĐS đang bán', map: 'Bản đồ', 'ha-an': 'Hà An', 'ha-long-xanh': 'Hạ Long Xanh', insights: 'Phân tích thị trường', contact: 'Liên hệ' };
+    return labels[section] || '';
   }
 
   function renderContentPosts() {
@@ -329,8 +336,10 @@
         ? `<a href="${escapeHtml(post.source_url)}" target="_blank" rel="noopener noreferrer" class="font-semibold text-forest underline decoration-forest/25 underline-offset-4 hover:decoration-forest">Mở nguồn</a>`
         : '';
       const originLabel = post.origin === 'daily-source' ? ' · Tạo tự động' : (/facebook/i.test(post.source_name || '') ? ' · Nguồn Facebook' : '');
+      const navigationText = navigationLabel(post.navigation_section);
+      const placementText = navigationText ? `${navigationText} · ${homeSlotLabel(post.home_slot)}` : homeSlotLabel(post.home_slot);
       return `<article class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-        <div class="flex items-start justify-between gap-4"><div><p class="text-xs font-bold uppercase tracking-[0.14em] text-slate-400">${escapeHtml(categoryLabel(post.category))}</p><h4 class="mt-1 font-semibold text-slate-900">${escapeHtml(post.title)}</h4><p class="mt-1 text-sm text-slate-500">${escapeHtml(homeSlotLabel(post.home_slot))} · Thứ tự ${Number(post.display_order || 0)}${originLabel}</p></div><span class="shrink-0 rounded-full border px-2.5 py-1 text-xs font-semibold ${statusClass}">${isPublished ? 'Đã xuất bản' : 'Bản nháp'}</span></div>
+        <div class="flex items-start justify-between gap-4"><div><p class="text-xs font-bold uppercase tracking-[0.14em] text-slate-400">${escapeHtml(categoryLabel(post.category))}</p><h4 class="mt-1 font-semibold text-slate-900">${escapeHtml(post.title)}</h4><p class="mt-1 text-sm text-slate-500">${escapeHtml(placementText)} · Thứ tự ${Number(post.display_order || 0)}${originLabel}</p></div><span class="shrink-0 rounded-full border px-2.5 py-1 text-xs font-semibold ${statusClass}">${isPublished ? 'Đã xuất bản' : 'Bản nháp'}</span></div>
         <p class="mt-3 line-clamp-2 text-sm leading-6 text-slate-600">${escapeHtml(post.excerpt || 'Chưa có tóm tắt.')}</p>
         ${post.source_name || sourceLink ? `<p class="mt-3 text-xs leading-5 text-slate-500">Nguồn: ${escapeHtml(post.source_name || 'Liên kết tham khảo')}${sourceLink ? ` · ${sourceLink}` : ''}</p>` : ''}
         <div class="mt-4 flex flex-wrap gap-2"><button type="button" data-content-action="edit" data-id="${post.id}" class="flex-1 rounded-xl border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700 transition hover:border-[#1e3b2e] hover:text-[#1e3b2e]">Chỉnh sửa</button>${isPublished ? `<a href="${detailLink}" target="_blank" rel="noopener noreferrer" class="rounded-xl border border-slate-300 px-3 py-2 text-sm font-semibold text-forest transition hover:border-forest">Xem</a>` : ''}<button type="button" data-content-action="delete" data-id="${post.id}" class="rounded-xl border border-red-200 px-3 py-2 text-sm font-semibold text-red-700 transition hover:bg-red-50">Xóa</button></div>
@@ -483,6 +492,7 @@
         excerpt: $('#content-post-excerpt').value.trim(),
         body: $('#content-post-body').value.trim(),
         category: $('#content-post-category').value,
+        navigation_section: $('#content-post-navigation').value || null,
         home_slot: $('#content-post-slot').value || null,
         display_order: Number($('#content-post-order').value),
         status: $('#content-post-status').value,
@@ -495,10 +505,19 @@
         origin: state.editingContentPost?.source_url === sourceUrl ? state.editingContentPost?.origin || 'manual' : 'manual',
         automation_run_id: state.editingContentPost?.source_url === sourceUrl ? state.editingContentPost?.automation_run_id || null : null,
       };
-      const query = state.editingContentPost
+      let query = state.editingContentPost
         ? supabaseClient.from('content_posts').update(payload).eq('id', postId)
         : supabaseClient.from('content_posts').insert(payload);
-      const { error } = await query;
+      let { error } = await query;
+      if (error && /navigation_section|column .* does not exist/i.test(error.message || '')) {
+        // Compatibility fallback: the form remains usable while the owner is applying the migration.
+        delete payload.navigation_section;
+        query = state.editingContentPost
+          ? supabaseClient.from('content_posts').update(payload).eq('id', postId)
+          : supabaseClient.from('content_posts').insert(payload);
+        ({ error } = await query);
+        if (!error) setStatus('Đã lưu bài viết. Hãy chạy migration navigation để lưu thêm Điểm đến trong navigation.', 'success');
+      }
       if (error) throw error;
 
       // Chỉ dọn cover cũ sau khi cập nhật DB thành công để không mất ảnh đang hiển thị.
@@ -548,6 +567,7 @@
         excerpt: fields.excerpt,
         body: fields.body,
         category: 'market-update',
+        navigation_section: 'insights',
         home_slot: null,
         display_order: 1000,
         status: 'draft',

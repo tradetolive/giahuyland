@@ -29,6 +29,7 @@
       body: post.body || '',
       category: post.category || 'insight',
       homeSlot: post.home_slot || null,
+      navigationSection: post.navigation_section || null,
       displayOrder: Number(post.display_order || 0),
       image: publicMediaUrl(post.cover_image_path),
       publishedAt: post.published_at || null,
@@ -49,6 +50,7 @@
       body: post.body || '',
       category: post.category || 'insight',
       homeSlot: post.homeSlot || null,
+      navigationSection: post.navigationSection || null,
       displayOrder: Number(post.displayOrder || 0),
       image: null,
       publishedAt: null,
@@ -190,7 +192,7 @@
     try {
       const { data, error } = await supabaseClient
         .from('content_posts_public')
-        .select('id, slug, title, eyebrow, excerpt, body, category, home_slot, display_order, cover_image_path, status, published_at, created_at, source_name, source_url, source_published_on, origin')
+        .select('id, slug, title, eyebrow, excerpt, body, category, home_slot, navigation_section, display_order, cover_image_path, status, published_at, created_at, source_name, source_url, source_published_on, origin')
         .eq('status', 'published')
         .order('display_order', { ascending: true })
         .order('published_at', { ascending: false });
@@ -212,7 +214,7 @@
       try {
         const { data, error } = await supabaseClient
           .from('content_posts_public')
-          .select('id, slug, title, eyebrow, excerpt, body, category, home_slot, display_order, cover_image_path, status, published_at, created_at, source_name, source_url, source_published_on, origin')
+          .select('id, slug, title, eyebrow, excerpt, body, category, home_slot, navigation_section, display_order, cover_image_path, status, published_at, created_at, source_name, source_url, source_published_on, origin')
           .eq('status', 'published')
           .eq('slug', safeSlug)
           .maybeSingle();
