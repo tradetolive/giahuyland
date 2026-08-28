@@ -161,6 +161,7 @@
     $('#title').value = listing.title || '';
     $('#property-type').value = listing.property_type || 'Đất nền';
     $('#location').value = listing.location || '';
+    $('#map-query').value = listing.map_query || '';
     $('#price-billion').value = listing.price_billion || '';
     $('#area-sqm').value = listing.area_sqm || '';
     $('#frontage-m').value = listing.frontage_m || '';
@@ -424,6 +425,7 @@
         summary: $('#summary').value.trim(),
         property_type: $('#property-type').value,
         location: $('#location').value.trim(),
+        map_query: $('#map-query').value.trim(),
         price_billion: Number($('#price-billion').value),
         area_sqm: Number($('#area-sqm').value),
         frontage_m: $('#frontage-m').value ? Number($('#frontage-m').value) : null,

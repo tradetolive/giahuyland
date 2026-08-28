@@ -66,6 +66,21 @@
     });
   }
 
+  function renderMap(listing) {
+    var section = document.getElementById('detail-map-section');
+    var map = document.getElementById('detail-map');
+    var link = document.getElementById('detail-map-link');
+    var location = String(listing.mapQuery || listing.location || '').trim();
+    if (!section || !map || !link || !location) return;
+
+    var query = encodeURIComponent(location);
+    map.src = 'https://www.google.com/maps?q=' + query + '&output=embed&z=16';
+    map.title = 'Bản đồ Google Maps — ' + (listing.name || 'vị trí bất động sản');
+    link.href = 'https://www.google.com/maps/search/?api=1&query=' + query;
+    setText('detail-map-location', location);
+    section.classList.remove('hidden');
+  }
+
   function updateMetadata(listing, url) {
     document.title = listing.name + ' | GiaHuy Land';
     var description = (listing.highlight || 'Thông tin bất động sản tại Hà An, Quảng Ninh.').slice(0, 155);
@@ -104,6 +119,7 @@
     addFact('Hướng', listing.direction || 'Chưa cập nhật');
     addFact('Loại hình', listing.propertyType || 'Đất nền');
     renderGallery(listing);
+    renderMap(listing);
 
     ['detail-zalo', 'detail-messenger', 'detail-copy-link'].forEach(function (id) {
       var action = document.getElementById(id);

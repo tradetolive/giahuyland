@@ -4,6 +4,8 @@
   const SUPABASE_URL = 'https://yxzoeicxoppupxxilzjh.supabase.co';
   const SUPABASE_ANON_KEY = 'sb_publishable_RC91v70_KIB-EKYtqYoiVQ_RuRxctW4';
   let supabaseClient = null;
+  const LISTING_SELECT = 'id, slug, title, summary, property_type, location, map_query, area_sqm, frontage_m, price_billion, direction, legal_summary, accent, cover_image_path, gallery_paths, status, published_at, created_at';
+  const LEGACY_LISTING_SELECT = 'id, slug, title, summary, property_type, location, area_sqm, frontage_m, price_billion, direction, legal_summary, accent, cover_image_path, gallery_paths, status, published_at, created_at';
 
   if (window.supabase && typeof window.supabase.createClient === 'function') {
     supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -64,6 +66,7 @@
       name: listing.title,
       propertyType: listing.property_type || 'Đất nền',
       location: listing.location || '',
+      mapQuery: listing.map_query || listing.location || 'Hà An, Quảng Ninh',
       area: Number(listing.area_sqm),
       frontage: listing.frontage_m == null ? 0 : Number(listing.frontage_m),
       price: Number(listing.price_billion),
@@ -89,6 +92,7 @@
       slug: fallbackSlug(product),
       propertyType: product.propertyType || 'Đất nền',
       location: product.location || 'Hà An, Quảng Ninh',
+      mapQuery: product.mapQuery || product.location || 'Hà An, Quảng Ninh',
       gallery: Array.isArray(product.gallery) ? product.gallery : [],
     });
   }
@@ -110,11 +114,18 @@
     try {
       const { data, error } = await supabaseClient
         .from('listings')
-        .select('id, slug, title, summary, property_type, location, area_sqm, frontage_m, price_billion, direction, legal_summary, accent, cover_image_path, gallery_paths, status, published_at, created_at')
+        .select(LISTING_SELECT)
         .eq('status', 'published')
         .order('published_at', { ascending: false });
 
       if (error) {
+        // Tương thích ngược trong lúc chờ chạy migration map_query trên Supabase.
+        const legacy = await supabaseClient
+          .from('listings')
+          .select(LEGACY_LISTING_SELECT)
+          .eq('status', 'published')
+          .order('published_at', { ascending: false });
+        if (!legacy.error) return (legacy.data || []).map(normalizeListing);
         console.warn('Không thể tải listings đã xuất bản từ Supabase; website sẽ dùng danh sách dự phòng.', error);
         return [];
       }
@@ -135,12 +146,20 @@
       try {
         const { data, error } = await supabaseClient
           .from('listings')
-          .select('id, slug, title, summary, property_type, location, area_sqm, frontage_m, price_billion, direction, legal_summary, accent, cover_image_path, gallery_paths, status, published_at, created_at')
+          .select(LISTING_SELECT)
           .eq('status', 'published')
           .eq('slug', safeSlug)
           .maybeSingle();
 
         if (error) {
+          // Tương thích ngược trong lúc chờ chạy migration map_query trên Supabase.
+          const legacy = await supabaseClient
+            .from('listings')
+            .select(LEGACY_LISTING_SELECT)
+            .eq('status', 'published')
+            .eq('slug', safeSlug)
+            .maybeSingle();
+          if (!legacy.error && legacy.data) return normalizeListing(legacy.data);
           console.warn('Không thể tải chi tiết listing từ Supabase; đang kiểm tra dữ liệu dự phòng.', error);
         } else if (data) {
           return normalizeListing(data);
