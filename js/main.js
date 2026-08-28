@@ -202,20 +202,9 @@
       }
     });
 
-    if (toggle && mobileMenu) {
-      toggle.addEventListener('click', function () {
-        var isOpen = mobileMenu.classList.toggle('flex');
-        mobileMenu.classList.toggle('hidden', !isOpen);
-        toggle.setAttribute('aria-expanded', String(isOpen));
-      });
-      mobileMenu.querySelectorAll('a').forEach(function (a) {
-        a.addEventListener('click', function () {
-          mobileMenu.classList.add('hidden');
-          mobileMenu.classList.remove('flex');
-          toggle.setAttribute('aria-expanded', 'false');
-        });
-      });
-    }
+    // Mobile menu interactions are owned by js/site-nav.js so every public page shares one behavior.
+    void toggle;
+    void mobileMenu;
   }
 
   function initSmoothScroll() {

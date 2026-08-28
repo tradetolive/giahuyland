@@ -20,12 +20,7 @@
   </script>
 </head>
 <body class="bg-cream font-sans text-ink antialiased">
-  <header class="border-b border-ink/10 bg-cream/95">
-    <div class="mx-auto flex h-20 max-w-5xl items-center justify-between px-5 sm:px-8">
-      <a href="./" class="flex items-center gap-2.5 font-display text-xl font-semibold text-forest"><span class="flex h-9 w-9 items-center justify-center bg-forest text-sm font-semibold text-cream">GH</span>GiaHuy Land</a>
-      <a href="./#diem-dau" class="text-sm font-semibold text-forest transition hover:text-clay">← Về trang chủ</a>
-    </div>
-  </header>
+  <header id="site-header"></header>
   <main>
     <section id="article-loading" class="mx-auto max-w-3xl px-5 py-20 sm:px-8"><p class="text-sm text-ink/60">Đang tải bài viết…</p></section>
     <article id="article-content" class="mx-auto hidden max-w-3xl px-5 py-14 sm:px-8 sm:py-20">
@@ -35,13 +30,16 @@
       <img id="article-cover" class="mt-9 hidden h-auto w-full rounded-[2rem] object-cover shadow-xl shadow-ink/10" alt="" />
       <div id="article-body" class="mt-10 space-y-6 text-base leading-8 text-ink/80"></div>
       <aside id="article-source" class="mt-10 hidden rounded-2xl border border-[#d8e3d4] bg-[#f8faf6] p-5 text-sm leading-6 text-ink/70" aria-label="Nguồn tham khảo"><p class="text-xs font-semibold uppercase tracking-wider text-clay">Nguồn tham khảo</p><p id="article-source-name" class="mt-2 font-semibold text-forest"></p><p id="article-source-date" class="mt-1 text-xs text-ink/55"></p><a id="article-source-link" class="mt-3 inline-flex font-semibold text-forest underline decoration-forest/30 underline-offset-4 transition hover:text-clay" target="_blank" rel="noopener noreferrer">Mở nguồn gốc <span class="ml-1" aria-hidden="true">↗</span></a><p class="mt-3 text-xs leading-5 text-ink/55">Thông tin được dẫn nguồn để tham khảo; người đọc cần đối chiếu văn bản gốc. Nội dung không phải tư vấn đầu tư hoặc xác nhận pháp lý cho bất kỳ bất động sản nào.</p></aside>
-      <div class="mt-12 border-t border-ink/10 pt-7"><a href="./#san-pham" class="inline-flex items-center gap-2 rounded-full bg-forest px-5 py-3 text-sm font-semibold text-cream transition hover:bg-ink">Xem lô đất đang mở bán <span aria-hidden="true">→</span></a></div>
+      <div class="mt-12 border-t border-ink/10 pt-7"><a href="./bds-dang-ban.html" class="inline-flex items-center gap-2 rounded-full bg-forest px-5 py-3 text-sm font-semibold text-cream transition hover:bg-ink">Xem lô đất đang mở bán <span aria-hidden="true">→</span></a></div>
     </article>
     <section id="article-not-found" class="mx-auto hidden max-w-3xl px-5 py-20 sm:px-8"><p class="text-xs font-semibold uppercase tracking-wider text-clay">Không tìm thấy bài viết</p><h1 class="mt-4 font-display text-4xl text-ink">Nội dung này không có sẵn.</h1><p class="mt-5 leading-7 text-ink/70">Bài viết có thể chưa được xuất bản hoặc đường dẫn không hợp lệ.</p><a href="./" class="mt-8 inline-flex rounded-full bg-forest px-5 py-3 text-sm font-semibold text-cream">Về trang chủ</a></section>
   </main>
+  <footer id="site-footer"></footer>
+  <script src="./js/site-nav.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="./js/supabase.js"></script>
   <script src="./js/editorial-data.js"></script>
   <script src="./js/editorial-detail.js"></script>
+  <script src="./js/site-footer.js"></script>
 </body>
 </html>

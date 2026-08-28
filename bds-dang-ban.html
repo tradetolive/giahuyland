@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BĐS đang bán | GiaHuy Land</title>
+  <meta name="description" content="Danh sách bất động sản đang bán tại Hà An và khu vực lân cận từ GiaHuy Land. Xem giá, diện tích, pháp lý và vị trí từng tin." />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://tradetolive.github.io/giahuyland/bds-dang-ban.html" />
+  <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./css/styles.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme: { extend: { colors: { ink: '#211c14', cream: '#f6f1e6', sand: '#ece2c8', forest: { DEFAULT: '#1e3b2e', light: '#2f5843' }, clay: { DEFAULT: '#c1592e', light: '#e8a57d' }, gold: '#c89b3c' }, fontFamily: { display: ['Fraunces', 'Georgia', 'serif'], sans: ['Be Vietnam Pro', 'system-ui', 'sans-serif'] } } } };
+  </script>
+</head>
+<body class="bg-cream text-ink antialiased">
+  <header id="site-header"></header>
+
+  <main class="pt-[4.5rem]">
+    <section class="border-b border-ink/8 bg-cream">
+      <div class="mx-auto grid max-w-7xl gap-10 px-5 py-14 sm:px-8 md:grid-cols-[1fr_0.72fr] md:items-end md:py-20">
+        <div>
+          <p class="reveal inline-flex items-center gap-2 rounded-full bg-forest/8 px-4 py-1.5 text-xs font-bold uppercase tracking-[0.16em] text-forest">Kho hàng đang mở bán</p>
+          <h1 class="reveal reveal-delay-1 mt-5 max-w-3xl font-display text-4xl leading-[1.05] text-ink sm:text-6xl">Bất động sản đang bán, nhìn rõ trước khi đi xem.</h1>
+          <p class="reveal reveal-delay-2 mt-6 max-w-2xl text-base leading-7 text-ink/65 sm:text-lg">Tập trung vào những gì cần biết: vị trí, diện tích, mặt tiền, pháp lý và mức giá tham khảo của từng tin tại Hà An.</p>
+        </div>
+        <div class="reveal reveal-delay-3 rounded-3xl bg-forest p-6 text-cream shadow-xl shadow-forest/15 sm:p-8">
+          <p class="text-xs font-bold uppercase tracking-[0.16em] text-clay-light">Cách xem nhanh</p>
+          <p class="mt-3 font-display text-2xl leading-tight">Chọn mức giá, mở hồ sơ, rồi đặt lịch xem đất.</p>
+          <a href="./lien-he.html" class="mt-6 inline-flex items-center gap-2 rounded-full bg-clay px-5 py-3 text-sm font-bold text-cream transition hover:-translate-y-0.5 hover:bg-ink">Nhận tư vấn chọn lô <span aria-hidden="true">→</span></a>
+        </div>
+      </div>
+    </section>
+
+    <section class="bg-ink py-6 text-cream">
+      <div class="mx-auto grid max-w-7xl gap-5 px-5 sm:grid-cols-3 sm:px-8">
+        <div class="border-l border-cream/20 pl-4"><p class="font-display text-2xl">Đang cập nhật</p><p class="mt-1 text-xs text-cream/55">tin theo trạng thái xuất bản</p></div>
+        <div class="border-l border-cream/20 pl-4"><p class="font-display text-2xl">Hà An</p><p class="mt-1 text-xs text-cream/55">khu vực ưu tiên theo dõi</p></div>
+        <div class="border-l border-cream/20 pl-4"><p class="font-display text-2xl">Minh bạch</p><p class="mt-1 text-xs text-cream/55">thông tin cần xác nhận trước giao dịch</p></div>
+      </div>
+    </section>
+
+    <section class="bg-cream py-12 sm:py-16">
+      <div class="mx-auto max-w-7xl px-5 sm:px-8">
+        <div class="flex flex-wrap items-end justify-between gap-5 border-b border-ink/10 pb-6">
+          <div>
+            <p class="text-xs font-bold uppercase tracking-[0.16em] text-clay">Danh sách sản phẩm</p>
+            <h2 class="mt-3 font-display text-3xl text-ink sm:text-4xl">Chọn theo ngân sách</h2>
+          </div>
+          <div class="flex flex-wrap gap-2" role="group" aria-label="Lọc theo giá">
+            <button data-filter="all" class="rounded-full bg-ink px-4 py-2 text-xs font-bold text-cream ring-1 ring-ink/10 transition hover:bg-forest">Tất cả</button>
+            <button data-filter="under2" class="rounded-full bg-sand px-4 py-2 text-xs font-bold text-ink/70 transition hover:bg-ink hover:text-cream">Dưới 2 tỷ</button>
+            <button data-filter="2to3" class="rounded-full bg-sand px-4 py-2 text-xs font-bold text-ink/70 transition hover:bg-ink hover:text-cream">2 – 3 tỷ</button>
+            <button data-filter="over3" class="rounded-full bg-sand px-4 py-2 text-xs font-bold text-ink/70 transition hover:bg-ink hover:text-cream">Trên 3 tỷ</button>
+          </div>
+        </div>
+        <div id="products-grid" class="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3" aria-live="polite">
+          <p class="col-span-full rounded-2xl bg-sand p-8 text-center text-sm text-ink/60">Đang tải danh sách bất động sản…</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="bg-sand py-14 sm:py-20">
+      <div class="mx-auto grid max-w-7xl gap-8 px-5 sm:px-8 md:grid-cols-[0.85fr_1.15fr] md:items-center">
+        <div>
+          <p class="text-xs font-bold uppercase tracking-[0.16em] text-clay">Không chỉ xem giá</p>
+          <h2 class="mt-4 font-display text-3xl leading-tight text-ink sm:text-4xl">Mở bản đồ để nhìn vị trí trong toàn khu vực.</h2>
+        </div>
+        <div class="flex flex-wrap items-center justify-between gap-5 rounded-3xl bg-cream p-6 ring-1 ring-ink/8 sm:p-8">
+          <p class="max-w-xl text-sm leading-6 text-ink/65">Mỗi hồ sơ có bản đồ tham khảo riêng. Bạn có thể đối chiếu lối vào, khoảng cách và khu vực xung quanh trước khi đặt lịch đi xem.</p>
+          <a href="./ban-do.html" class="inline-flex shrink-0 items-center gap-2 rounded-full bg-forest px-5 py-3 text-sm font-bold text-cream transition hover:bg-ink">Xem bản đồ khu vực <span aria-hidden="true">→</span></a>
+        </div>
+      </div>
+    </section>
+
+    <section class="bg-cream py-14 sm:py-20">
+      <div class="mx-auto grid max-w-7xl gap-8 px-5 sm:px-8 md:grid-cols-[1fr_0.75fr] md:items-end">
+        <div>
+          <p class="text-xs font-bold uppercase tracking-[0.16em] text-clay">Cần chọn nhanh hơn?</p>
+          <h2 class="mt-4 max-w-2xl font-display text-3xl leading-tight text-ink sm:text-4xl">Nói cho GiaHuy Land biết bạn đang tìm lô đất như thế nào.</h2>
+        </div>
+        <a href="./lien-he.html" class="inline-flex w-fit items-center gap-2 rounded-full bg-clay px-6 py-3.5 text-sm font-bold text-cream transition hover:-translate-y-0.5 hover:bg-ink">Liên hệ để được lọc tin <span aria-hidden="true">→</span></a>
+      </div>
+    </section>
+  </main>
+
+  <div id="contact-toast" class="contact-toast" role="status" aria-live="polite"></div>
+  <footer id="site-footer"></footer>
+
+  <script src="./js/products-data.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./js/supabase.js"></script>
+  <script src="./js/site-nav.js"></script>
+  <script src="./js/main.js"></script>
+  <script src="./js/contact-share.js"></script>
+  <script src="./js/site-footer.js"></script>
+</body>
+</html>

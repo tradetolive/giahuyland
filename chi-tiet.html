@@ -26,17 +26,7 @@
   </script>
 </head>
 <body class="antialiased bg-cream text-ink">
-  <header class="border-b border-ink/10 bg-cream/95 backdrop-blur">
-    <div class="mx-auto flex h-20 max-w-7xl items-center justify-between px-5 sm:px-8">
-      <a href="./" class="flex items-center gap-2.5 font-display text-xl font-semibold text-forest" aria-label="Về trang chủ GiaHuy Land">
-        <svg class="h-9 w-9" viewBox="0 0 64 64" aria-hidden="true"><path d="M8 8h36l12 12v36H8z" fill="#1E3B2E"/><path d="M8 8h36l12 12H8z" fill="#2F5843"/><text x="32" y="42" font-family="Georgia, serif" font-size="26" font-weight="600" fill="#F6F1E6" text-anchor="middle">GH</text></svg>
-        GiaHuy Land
-      </a>
-      <a href="./#san-pham" class="inline-flex items-center gap-2 rounded-full border border-ink/15 px-4 py-2 text-sm font-semibold text-ink transition hover:border-forest hover:text-forest">
-        <span aria-hidden="true">←</span> Tất cả lô đất
-      </a>
-    </div>
-  </header>
+  <header id="site-header"></header>
 
   <main>
     <section class="relative overflow-hidden bg-cream py-12 sm:py-16">
@@ -47,7 +37,7 @@
           <p class="text-xs font-semibold uppercase tracking-wider text-clay">Không tìm thấy bài đăng</p>
           <h1 class="mt-3 font-display text-3xl text-ink">Liên kết này hiện chưa khả dụng</h1>
           <p id="detail-error-message" class="mt-4 text-ink/70"></p>
-          <a href="./#san-pham" class="mt-7 inline-flex rounded-full bg-forest px-5 py-3 text-sm font-semibold text-cream transition hover:bg-ink">Xem các lô đất đang bán</a>
+          <a href="./bds-dang-ban.html" class="mt-7 inline-flex rounded-full bg-forest px-5 py-3 text-sm font-semibold text-cream transition hover:bg-ink">Xem các lô đất đang bán</a>
         </div>
 
         <article id="listing-detail" class="hidden">
@@ -107,17 +97,14 @@
 
   <div id="contact-toast" class="contact-toast" role="status" aria-live="polite"></div>
 
-  <footer class="bg-ink py-8 text-cream/60">
-    <div class="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-5 text-sm sm:px-8">
-      <p>GiaHuy Land · Thông tin mang tính tham khảo, cần xác nhận trước khi giao dịch.</p>
-      <a href="mailto:tatylic@gmail.com" class="hover:text-clay-light">tatylic@gmail.com</a>
-    </div>
-  </footer>
+  <footer id="site-footer"></footer>
 
   <script src="./js/products-data.js"></script>
+  <script src="./js/site-nav.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="./js/supabase.js"></script>
   <script src="./js/contact-share.js"></script>
   <script src="./js/chi-tiet.js"></script>
+  <script src="./js/site-footer.js"></script>
 </body>
 </html>

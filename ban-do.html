@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bản đồ bất động sản Hà An | GiaHuy Land</title>
+  <meta name="description" content="Xem bản đồ tham khảo khu vực Hà An và vị trí từng bất động sản đang bán trên GiaHuy Land." />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://tradetolive.github.io/giahuyland/ban-do.html" />
+  <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./css/styles.css" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme: { extend: { colors: { ink: '#211c14', cream: '#f6f1e6', sand: '#ece2c8', forest: { DEFAULT: '#1e3b2e', light: '#2f5843' }, clay: { DEFAULT: '#c1592e', light: '#e8a57d' }, gold: '#c89b3c' }, fontFamily: { display: ['Fraunces', 'Georgia', 'serif'], sans: ['Be Vietnam Pro', 'system-ui', 'sans-serif'] } } } };
+  </script>
+</head>
+<body class="bg-cream text-ink antialiased">
+  <header id="site-header"></header>
+
+  <main class="pt-[4.5rem]">
+    <section class="bg-forest text-cream">
+      <div class="mx-auto grid max-w-7xl gap-10 px-5 py-14 sm:px-8 sm:py-20 md:grid-cols-[0.9fr_1.1fr] md:items-end">
+        <div>
+          <p class="inline-flex rounded-full bg-cream/10 px-4 py-1.5 text-xs font-bold uppercase tracking-[0.16em] text-clay-light">Bản đồ tham khảo</p>
+          <h1 class="mt-5 max-w-xl font-display text-4xl leading-[1.06] sm:text-6xl">Nhìn vị trí trước khi nhìn quyết định.</h1>
+          <p class="mt-6 max-w-xl text-base leading-7 text-cream/65">Bản đồ giúp bạn định hình nhanh các khu vực đang được quan tâm. Mỗi tin đăng có thể mở một vị trí tìm kiếm riêng từ hồ sơ chi tiết.</p>
+        </div>
+        <div class="rounded-[2rem] bg-cream/8 p-2 ring-1 ring-cream/15">
+          <iframe title="Bản đồ tham khảo Hà An, Quảng Ninh" class="block h-[18rem] w-full rounded-[1.5rem] border-0 sm:h-[24rem]" loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen src="https://www.google.com/maps?q=Ph%C6%B0%E1%BB%9Dng%20H%C3%A0%20An%2C%20Th%C3%A0nh%20ph%E1%BB%91%20Qu%E1%BA%A3ng%20Ninh&output=embed&z=14"></iframe>
+        </div>
+      </div>
+    </section>
+
+    <section class="bg-cream py-14 sm:py-20">
+      <div class="mx-auto max-w-7xl px-5 sm:px-8">
+        <div class="flex flex-wrap items-end justify-between gap-5">
+          <div>
+            <p class="text-xs font-bold uppercase tracking-[0.16em] text-clay">Vị trí theo từng tin</p>
+            <h2 class="mt-3 font-display text-3xl sm:text-4xl">Các lô đang được quan tâm</h2>
+          </div>
+          <a href="./bds-dang-ban.html" class="inline-flex items-center gap-2 rounded-full border border-ink/15 px-4 py-2.5 text-sm font-bold text-forest transition hover:border-forest hover:bg-forest/5">Xem danh sách BĐS <span aria-hidden="true">→</span></a>
+        </div>
+        <div id="map-listings" class="mt-8 grid gap-4 md:grid-cols-2" aria-live="polite">
+          <p class="rounded-2xl bg-sand p-6 text-sm text-ink/60">Đang tải các vị trí…</p>
+        </div>
+        <p class="mt-7 text-xs leading-5 text-ink/50">Vị trí hiển thị mang tính tham khảo, được dựng từ địa chỉ hoặc truy vấn bản đồ của từng tin. Hãy xác nhận ranh giới, lối vào và hồ sơ thực tế trước khi giao dịch.</p>
+      </div>
+    </section>
+
+    <section class="bg-sand py-14 sm:py-20">
+      <div class="mx-auto grid max-w-7xl gap-8 px-5 sm:px-8 md:grid-cols-3">
+        <div class="md:col-span-2"><p class="text-xs font-bold uppercase tracking-[0.16em] text-clay">Đi cùng bản đồ</p><h2 class="mt-4 max-w-2xl font-display text-3xl leading-tight sm:text-4xl">Một vị trí tốt cần được nhìn trong cả khu vực.</h2></div>
+        <div class="rounded-2xl bg-cream p-5 text-sm leading-6 text-ink/65"><p class="font-semibold text-forest">Gợi ý xem</p><p class="mt-2">Đối chiếu đường kết nối, khu dân cư hiện hữu, tiện ích lân cận và khả năng tiếp cận thực tế trước khi đặt lịch.</p></div>
+      </div>
+    </section>
+  </main>
+
+  <footer id="site-footer"></footer>
+  <script src="./js/products-data.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./js/supabase.js"></script>
+  <script src="./js/site-nav.js"></script>
+  <script src="./js/map-page.js"></script>
+  <script src="./js/site-footer.js"></script>
+</body>
+</html>
