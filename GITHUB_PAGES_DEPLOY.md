@@ -47,6 +47,19 @@ Các nội dung giới thiệu, “Điểm nghẽn quy hoạch” và “Lợi t
 
 > Các trang bài viết theo slug là template động trên GitHub Pages, nên mặc định không yêu cầu Google index riêng từng bài. Khi cần SEO index từng bài riêng, nên bổ sung bước tạo trang tĩnh và sitemap theo dữ liệu published trước khi thay đổi `noindex`.
 
+### Tạo bản nháp từ URL Facebook do bạn kiểm soát
+
+Tính năng này không dùng Meta App, token, crawler, cookie hoặc workflow hằng ngày. Quản trị viên tự chọn một bài Facebook do mình sở hữu/quyền sử dụng, rồi tạo draft có link nguồn trong dashboard.
+
+1. Nếu chưa chạy trước đó, chạy migration `supabase/migrations/20260827_content_post_source_metadata.sql` trong **Supabase → SQL Editor**. Migration chỉ thêm metadata nguồn và index chống trùng URL vào `content_posts`; không thay đổi RLS hoặc trạng thái bài hiện có.
+2. Mở `/admin/`, đăng nhập và tới mục **Bản nháp từ bài Facebook của bạn**.
+3. Dán URL HTTPS của **một bài đăng, reel hoặc permalink cụ thể**. Link profile như `https://www.facebook.com/anhladenhoi` sẽ bị từ chối để tránh nhầm nguồn.
+4. Nhập tiêu đề/ghi chú nếu cần, đọc kỹ xác nhận quyền sử dụng và tích chọn trước khi tạo. Hệ thống chỉ lưu URL nguồn và một skeleton `draft`; không sao chép bài Facebook.
+5. Mở bài vừa tạo trong danh sách, đọc bài gốc, hoàn thiện nội dung, loại bỏ dữ liệu cá nhân/giấy tờ nhạy cảm và kiểm chứng mọi nhận định về giá, quy hoạch hoặc pháp lý. Chỉ sau đó bạn mới tự đổi trạng thái thành **Xuất bản**.
+6. Không dùng lại cùng một URL: dashboard chặn URL trùng dựa trên fingerprint để tránh tạo hai bản nháp từ một nguồn.
+
+> Khi một bài đã xuất bản có URL nguồn, website sẽ hiển thị nguồn tham khảo ở cuối trang để độc giả có thể đối chiếu. Chỉ dùng nội dung bạn có quyền sử dụng; không tự nhập hoặc đăng lại nội dung của bên thứ ba khi chưa có quyền phù hợp.
+
 ## Biểu mẫu liên hệ
 
 Netlify Forms không hoạt động trên GitHub Pages. Website đã chuyển biểu mẫu sang `mailto:tatylic@gmail.com`, nên khi khách gửi biểu mẫu, thiết bị sẽ mở ứng dụng email mặc định với nội dung đã điền. Khi cần form lưu dữ liệu tự động, cần thêm một endpoint bảo mật (ví dụ Supabase Edge Function) và chính sách quyền truy cập phù hợp.

@@ -38,10 +38,42 @@
     node.className = `mt-4 text-sm ${type === 'error' ? 'text-red-600' : type === 'success' ? 'text-emerald-700' : 'text-slate-600'}`;
   }
 
+  function setFacebookSourceStatus(message, type = 'neutral') {
+    const node = $('#facebook-source-draft-status');
+    node.textContent = message;
+    node.className = `text-sm ${type === 'error' ? 'text-red-700' : type === 'success' ? 'text-emerald-700' : 'text-slate-600'}`;
+  }
+
   function slugify(value) {
     return value.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
       .toLowerCase().trim().replace(/đ/g, 'd')
       .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 90);
+  }
+
+  function normalizeFacebookPostUrl(rawUrl) {
+    let parsed;
+    try {
+      parsed = new URL(String(rawUrl || '').trim());
+    } catch {
+      throw new Error('URL Facebook không hợp lệ.');
+    }
+    const host = parsed.hostname.toLowerCase();
+    const isFacebookHost = host === 'facebook.com' || host.endsWith('.facebook.com') || host === 'fb.watch';
+    if (parsed.protocol !== 'https:' || !isFacebookHost) throw new Error('Chỉ chấp nhận liên kết HTTPS của Facebook.');
+    const pathname = parsed.pathname.replace(/\/+$/, '') || '/';
+    const isProfileOnly = /^\/anhladenhoi$/i.test(pathname) && !parsed.search;
+    const isRootOnly = pathname === '/' && !parsed.search;
+    if (isProfileOnly || isRootOnly) throw new Error('Hãy dán URL của một bài đăng cụ thể, không dùng link profile Facebook.');
+    const hasPostIdentity = /\/(posts|permalink|reel|share)\//i.test(pathname) || /(?:story_fbid|fbid|post_id|v)=/i.test(parsed.search) || host === 'fb.watch';
+    if (!hasPostIdentity) throw new Error('Liên kết cần dẫn tới bài đăng, reel hoặc permalink Facebook cụ thể.');
+    parsed.hash = '';
+    return parsed.href;
+  }
+
+  async function sourceFingerprint(url) {
+    if (!window.crypto?.subtle) throw new Error('Trình duyệt không hỗ trợ tạo mã chống trùng. Hãy dùng trình duyệt hiện đại qua HTTPS.');
+    const digest = await window.crypto.subtle.digest('SHA-256', new TextEncoder().encode(url));
+    return Array.from(new Uint8Array(digest)).map((byte) => byte.toString(16).padStart(2, '0')).join('');
   }
 
   function extensionFromFile(file) {
@@ -88,6 +120,8 @@
     $('#cancel-content-post-edit').hidden = true;
     $('#content-post-current-cover').hidden = true;
     $('#content-post-current-cover').textContent = '';
+    $('#content-post-automation-note').hidden = true;
+    $('#content-post-automation-note').textContent = '';
     delete $('#content-post-slug').dataset.edited;
     removeFileInputValue('content-post-cover-file');
   }
@@ -133,12 +167,26 @@
     $('#content-post-eyebrow').value = post.eyebrow || '';
     $('#content-post-excerpt').value = post.excerpt || '';
     $('#content-post-body').value = post.body || '';
+    $('#content-post-source-name').value = post.source_name || '';
+    $('#content-post-source-url').value = post.source_url || '';
+    $('#content-post-source-date').value = post.source_published_on || '';
     $('#content-post-form-title').textContent = `Chỉnh sửa: ${post.title}`;
     $('#save-content-post-label').textContent = 'Lưu thay đổi';
     $('#cancel-content-post-edit').hidden = false;
     const coverInfo = $('#content-post-current-cover');
     coverInfo.textContent = post.cover_image_path ? 'Đã có ảnh cover public. Chọn ảnh mới để thay thế.' : 'Chưa có ảnh cover.';
     coverInfo.hidden = false;
+    const automationNote = $('#content-post-automation-note');
+    if (post.origin === 'daily-source') {
+      automationNote.textContent = `Bản nháp tự động từ nguồn nhà nước${post.automation_run_id ? ` · lượt chạy ${post.automation_run_id}` : ''}. Hãy đối chiếu URL và nội dung trước khi xuất bản.`;
+      automationNote.hidden = false;
+    } else if (/facebook/i.test(post.source_name || '') || /(^|\.)facebook\.com|fb\.watch/i.test(post.source_url || '')) {
+      automationNote.textContent = 'Bản nháp từ URL Facebook do quản trị viên cung cấp. Website không tự tải hoặc sao chép nội dung nguồn; hãy tự hoàn thiện và kiểm chứng trước khi xuất bản.';
+      automationNote.hidden = false;
+    } else {
+      automationNote.hidden = true;
+      automationNote.textContent = '';
+    }
     window.scrollTo({ top: $('#content-post-form').getBoundingClientRect().top + window.scrollY - 24, behavior: 'smooth' });
   }
 
@@ -249,9 +297,14 @@
       const isPublished = post.status === 'published';
       const statusClass = isPublished ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-amber-50 text-amber-700 border-amber-200';
       const detailLink = escapeHtml(contentPostUrl(post));
+      const sourceLink = post.source_url && /^https:\/\//i.test(post.source_url)
+        ? `<a href="${escapeHtml(post.source_url)}" target="_blank" rel="noopener noreferrer" class="font-semibold text-forest underline decoration-forest/25 underline-offset-4 hover:decoration-forest">Mở nguồn</a>`
+        : '';
+      const originLabel = post.origin === 'daily-source' ? ' · Tạo tự động' : (/facebook/i.test(post.source_name || '') ? ' · Nguồn Facebook' : '');
       return `<article class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-        <div class="flex items-start justify-between gap-4"><div><p class="text-xs font-bold uppercase tracking-[0.14em] text-slate-400">${escapeHtml(categoryLabel(post.category))}</p><h4 class="mt-1 font-semibold text-slate-900">${escapeHtml(post.title)}</h4><p class="mt-1 text-sm text-slate-500">${escapeHtml(homeSlotLabel(post.home_slot))} · Thứ tự ${Number(post.display_order || 0)}</p></div><span class="shrink-0 rounded-full border px-2.5 py-1 text-xs font-semibold ${statusClass}">${isPublished ? 'Đã xuất bản' : 'Bản nháp'}</span></div>
+        <div class="flex items-start justify-between gap-4"><div><p class="text-xs font-bold uppercase tracking-[0.14em] text-slate-400">${escapeHtml(categoryLabel(post.category))}</p><h4 class="mt-1 font-semibold text-slate-900">${escapeHtml(post.title)}</h4><p class="mt-1 text-sm text-slate-500">${escapeHtml(homeSlotLabel(post.home_slot))} · Thứ tự ${Number(post.display_order || 0)}${originLabel}</p></div><span class="shrink-0 rounded-full border px-2.5 py-1 text-xs font-semibold ${statusClass}">${isPublished ? 'Đã xuất bản' : 'Bản nháp'}</span></div>
         <p class="mt-3 line-clamp-2 text-sm leading-6 text-slate-600">${escapeHtml(post.excerpt || 'Chưa có tóm tắt.')}</p>
+        ${post.source_name || sourceLink ? `<p class="mt-3 text-xs leading-5 text-slate-500">Nguồn: ${escapeHtml(post.source_name || 'Liên kết tham khảo')}${sourceLink ? ` · ${sourceLink}` : ''}</p>` : ''}
         <div class="mt-4 flex flex-wrap gap-2"><button type="button" data-content-action="edit" data-id="${post.id}" class="flex-1 rounded-xl border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700 transition hover:border-[#1e3b2e] hover:text-[#1e3b2e]">Chỉnh sửa</button>${isPublished ? `<a href="${detailLink}" target="_blank" rel="noopener noreferrer" class="rounded-xl border border-slate-300 px-3 py-2 text-sm font-semibold text-forest transition hover:border-forest">Xem</a>` : ''}<button type="button" data-content-action="delete" data-id="${post.id}" class="rounded-xl border border-red-200 px-3 py-2 text-sm font-semibold text-red-700 transition hover:bg-red-50">Xóa</button></div>
       </article>`;
     }).join('');
@@ -386,6 +439,9 @@
       const coverFile = $('#content-post-cover-file').files[0];
       assertFile(coverFile, IMAGE_TYPES, 'Ảnh cover bài viết');
 
+      const sourceUrl = $('#content-post-source-url').value.trim();
+      if (sourceUrl && !/^https:\/\//i.test(sourceUrl)) throw new Error('URL nguồn cần bắt đầu bằng https://.');
+
       const postId = state.editingContentPost ? state.editingContentPost.id : crypto.randomUUID();
       let coverImagePath = state.editingContentPost?.cover_image_path || null;
       if (coverFile) coverImagePath = await uploadFile('property-media', coverFile, `${state.session.user.id}/content/${postId}`);
@@ -403,6 +459,12 @@
         status: $('#content-post-status').value,
         cover_image_path: coverImagePath,
         author_id: state.editingContentPost?.author_id || state.session.user.id,
+        source_name: $('#content-post-source-name').value.trim() || null,
+        source_url: sourceUrl || null,
+        source_published_on: $('#content-post-source-date').value || null,
+        source_fingerprint: state.editingContentPost?.source_url === sourceUrl ? state.editingContentPost.source_fingerprint || null : null,
+        origin: state.editingContentPost?.source_url === sourceUrl ? state.editingContentPost?.origin || 'manual' : 'manual',
+        automation_run_id: state.editingContentPost?.source_url === sourceUrl ? state.editingContentPost?.automation_run_id || null : null,
       };
       const query = state.editingContentPost
         ? supabaseClient.from('content_posts').update(payload).eq('id', postId)
@@ -427,6 +489,60 @@
       }
     } finally {
       submit.disabled = false;
+    }
+  }
+
+  /**
+   * Tạo skeleton draft từ URL Facebook do admin tự cung cấp.
+   * Không fetch, không scrape và không sao chép nội dung Facebook; chỉ lưu URL làm nguồn.
+   */
+  async function createFacebookSourceDraft(event) {
+    event.preventDefault();
+    if (!state.session) return;
+    const button = $('#create-facebook-source-draft');
+    button.disabled = true;
+    setFacebookSourceStatus('Đang kiểm tra URL và tạo bản nháp…');
+    try {
+      if (!$('#facebook-source-ownership').checked) throw new Error('Bạn cần xác nhận quyền sử dụng bài đăng trước khi tạo bản nháp.');
+      const url = normalizeFacebookPostUrl($('#facebook-source-url').value);
+      const fingerprint = await sourceFingerprint(url);
+      const customTitle = $('#facebook-draft-title').value.trim();
+      const note = $('#facebook-draft-note').value.trim();
+      const shortId = fingerprint.slice(0, 10);
+      const title = customTitle || `Bản nháp từ bài Facebook ${shortId}`;
+      const payload = {
+        id: crypto.randomUUID(),
+        slug: `${slugify(title).slice(0, 72).replace(/-+$/g, '')}-${shortId}`,
+        title,
+        eyebrow: 'Nguồn Facebook do quản trị viên cung cấp',
+        excerpt: note || 'Bản nháp được tạo từ URL Facebook do quản trị viên cung cấp. Hãy đọc bài gốc, hoàn thiện nội dung và kiểm chứng trước khi xuất bản.',
+        body: `Bản nháp này được tạo từ URL Facebook do quản trị viên cung cấp. Website không tự tải, trích xuất hoặc sao chép nội dung Facebook.\n\nNguồn gốc: ${url}\n\nGhi chú biên tập: ${note || 'Đọc bài gốc, xác thực thông tin, loại bỏ dữ liệu cá nhân/giấy tờ nhạy cảm và hoàn thiện nội dung trước khi xuất bản.'}\n\nKhông coi nội dung này là tư vấn đầu tư, cam kết lợi nhuận hoặc xác nhận pháp lý cho bất kỳ bất động sản nào.`,
+        category: 'market-update',
+        home_slot: null,
+        display_order: 1000,
+        status: 'draft',
+        cover_image_path: null,
+        author_id: state.session.user.id,
+        source_name: 'Facebook — bài đăng do quản trị viên cung cấp',
+        source_url: url,
+        source_published_on: null,
+        source_fingerprint: fingerprint,
+        origin: 'manual',
+        automation_run_id: null,
+      };
+      const { error } = await supabaseClient.from('content_posts').insert(payload);
+      if (error) {
+        if (/23505|duplicate key/i.test(error.message || '')) throw new Error('URL Facebook này đã có bản nháp hoặc bài viết trong dashboard.');
+        throw error;
+      }
+      event.currentTarget.reset();
+      setFacebookSourceStatus('Đã tạo Bản nháp. Hãy mở bài trong danh sách để hoàn thiện nội dung, kiểm chứng và tự xuất bản khi sẵn sàng.', 'success');
+      setStatus('Đã tạo bản nháp từ URL Facebook. Khách truy cập chưa thể xem bài này.', 'success');
+      await loadContentPosts();
+    } catch (error) {
+      setFacebookSourceStatus(`Không thể tạo bản nháp: ${error.message || 'Lỗi không xác định.'}`, 'error');
+    } finally {
+      button.disabled = false;
     }
   }
 
@@ -554,6 +670,7 @@
     $('#forgot-password-button').addEventListener('click', requestPasswordRecovery);
     $('#listing-form').addEventListener('submit', saveListing);
     $('#content-post-form').addEventListener('submit', saveContentPost);
+    $('#facebook-source-draft-form').addEventListener('submit', createFacebookSourceDraft);
     // Giữ xác thực HTML5, đồng thời hiển thị lỗi trong vùng trạng thái dễ nhận thấy.
     $('#listing-form').addEventListener('invalid', (event) => {
       const field = event.target;

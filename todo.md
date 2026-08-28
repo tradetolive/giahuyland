@@ -57,3 +57,31 @@
 > Hardening sau migration: `20260827_harden_content_posts_public_read.sql` đã được chủ dự án chạy. Public read hiện qua view `content_posts_public` chỉ có cột an toàn/bài published; bảng gốc anonymous trả HTTP 401 và `author_id` không tồn tại trong view.
 
 > Kiểm tra trực quan preview bằng Chromium headless: desktop giữ rõ tiêu đề, CTA và minh họa ở hero; mobile 390 px xếp tiêu đề/bản tóm tắt/CTA không tràn ngang. Không thay đổi liên hệ Zalo/Messenger trong đợt này.
+
+## Tự động tạo bài viết nháp hằng ngày
+
+- [x] Xác định chủ đề, allowlist Cổng thông tin điện tử tỉnh Quảng Ninh, quy tắc trích dẫn và tiêu chí loại trừ nội dung.
+- [x] Thiết kế quy trình zero-cost chỉ tạo `draft`, chống trùng lặp theo fingerprint URL và lưu URL nguồn để admin kiểm chứng.
+- [x] Chọn lịch GitHub 00:00 UTC (07:00 Việt Nam), GitHub Actions Secret và chế độ bỏ qua an toàn khi chưa có key.
+- [ ] Triển khai sau khi chủ website xác nhận rõ nguồn, tần suất và việc tạo draft tự động; không tự xuất bản hay đăng nội dung chưa duyệt.
+
+> Cấu hình đã chốt: Phương án workflow nền GitHub, chạy **07:00 hằng ngày giờ Việt Nam** (00:00 UTC), chỉ allowlist nguồn cơ quan nhà nước, tạo tối đa một `draft` mỗi lần và tuyệt đối không tự xuất bản.
+
+> Thiết kế triển khai: workflow chỉ chạy ghi dữ liệu khi GitHub Secret `SUPABASE_SERVICE_ROLE_KEY` đã tồn tại; chạy tay mặc định `dry_run=true` không cần key. Chưa chạy migration, chưa tạo secret và chưa tạo bản nháp thật trong Supabase.
+
+## Nguồn Facebook cá nhân do chủ website kiểm soát
+
+- [x] Xác minh hướng dùng bài Facebook do chủ website kiểm soát, không dùng crawler/profile/cookie hoặc API chưa cấp quyền.
+- [x] Chọn phương án nhập URL bài có chọn lọc thay vì scrape profile Facebook cá nhân tự động.
+- [x] Hủy hướng workflow daily draft; chỉ giữ metadata nguồn đã chạy để phục vụ truy vết URL Facebook trong dashboard.
+
+> Phạm vi nguồn đã thay đổi: dừng triển khai allowlist Cổng thông tin Quảng Ninh cho tới khi chốt phương án Facebook. Không hợp nhất nhánh `feature/daily-editorial-drafts`, không chạy workflow và không tạo bài nháp từ nguồn nhà nước.
+
+> Phương án đã chọn: nhập URL Facebook có chọn lọc trong dashboard. Chỉ dùng link bài do chủ website kiểm soát, tạo `draft` thủ công có nguồn dẫn; không cần Meta App/token, không scrape profile và không tự xuất bản.
+
+- [x] Thêm biểu mẫu “Tạo bản nháp từ URL Facebook” cho host Facebook hợp lệ và link bài viết cụ thể.
+- [x] Tạo draft chứa URL/tên nguồn, đánh dấu nguồn Facebook và chặn trùng URL mà không tải hoặc sao chép nội dung Facebook.
+- [x] Gỡ workflow và script nguồn nhà nước chưa kích hoạt; đổi tên migration đã chạy thành `20260827_content_post_source_metadata.sql` để phản ánh truy vết nguồn chung.
+- [x] Kiểm thử mã: URL chỉ chấp nhận HTTPS Facebook có định danh bài; profile/URL không có định danh bị từ chối; fingerprint SHA-256 tạo tại trình duyệt; payload luôn là `draft` và không có fetch/crawl nguồn.
+- [x] Kiểm thử quyền public: POST anonymous vào `content_posts` trả HTTP 401. Không tạo dữ liệu thử bằng admin trước khi chủ website tự chọn URL bài thực tế.
+- [ ] Chủ website tạo thử một draft bằng URL bài Facebook thực tế sau deploy, kiểm tra chặn trùng và hoàn thiện nội dung trước xuất bản.

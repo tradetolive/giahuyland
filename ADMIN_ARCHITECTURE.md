@@ -5,8 +5,8 @@ Website public tiếp tục chạy trên GitHub Pages. Dữ liệu danh sách b�
 | Thành phần | Mục đích | Quyền truy cập |
 |---|---|---|
 | `public.listings` | Nội dung dự án/bài đăng hiển thị ngoài website và tại `chi-tiet.html?slug=…` | Khách chỉ đọc dòng `published`; admin tạo/sửa/xóa |
-| `public.content_posts` | Bài viết giới thiệu, góc nhìn đầu tư, lợi thế khu vực và nội dung chuyên đề | Chỉ admin đọc/tạo/sửa/xóa từ khu vực Nội dung biên tập; có cả `author_id` nội bộ |
-| `public.content_posts_public` | View công khai cố định các cột an toàn của bài viết | Khách chỉ đọc bài `published`; không có `author_id` hay cột nội bộ |
+| `public.content_posts` | Bài viết giới thiệu, góc nhìn đầu tư, lợi thế khu vực và nội dung chuyên đề | Chỉ admin đọc/tạo/sửa/xóa từ khu vực Nội dung biên tập; có `author_id`, fingerprint và metadata automation nội bộ |
+| `public.content_posts_public` | View công khai cố định các cột an toàn của bài viết | Khách chỉ đọc bài `published`; không có `author_id`, fingerprint hay ID lượt chạy |
 | `public.products` | Bảng legacy không còn được website/dashboard truy vấn | Data API của `anon`/`authenticated` đã bị khóa; không thay thế bằng `service_role` ở frontend |
 | `public.admin_users` | Danh sách tài khoản có quyền quản trị | Người dùng thường không đọc được; hàm kiểm tra quyền dùng nội bộ |
 | Bucket `property-media` | Ảnh minh họa dự án để hiển thị công khai | Khách xem ảnh; admin tải lên, thay hoặc xóa |
@@ -31,5 +31,11 @@ Các nút Zalo/Messenger sao chép trước tên listing và URL chi tiết, r�
 `content_posts` là mô hình độc lập với `listings`, dùng cho những nội dung trước đây viết cố định trên trang chủ. Mỗi bài gồm tiêu đề, slug, nhãn phụ, tóm tắt, nội dung chi tiết, chuyên mục, thứ tự, ảnh cover public tùy chọn, trạng thái và tác giả. Bài đã xuất bản có thể được gán một trong ba vị trí: `hero`, `pain-points`, hoặc `advantages`; chỉ một bài published được dùng ở mỗi vị trí để tránh hiển thị mâu thuẫn. Các bài không có vị trí vẫn có trang riêng dạng `bai-viet.html?slug=<slug>`.
 
 Website public chỉ gọi view `content_posts_public`, vốn đã cố định điều kiện `status = 'published'` và không chọn `author_id`. Truy cập anonymous vào bảng gốc `content_posts` bị từ chối. Bản nháp và slug sai không trả về nội dung. Ảnh cover tái sử dụng bucket `property-media` có policy quản trị đã có; không sử dụng `property-documents` để chứa ảnh bài viết.
+
+### Bản nháp từ URL Facebook do quản trị viên nhập
+
+Dashboard có biểu mẫu **Bản nháp từ bài Facebook của bạn**. Quản trị viên dán URL HTTPS của một bài/reel/permalink Facebook cụ thể, xác nhận quyền sở hữu hoặc quyền sử dụng và có thể thêm tiêu đề/ghi chú. Website chỉ chuẩn hóa URL, tạo `source_fingerprint` chống trùng trong trình duyệt và lưu một bài `draft` với URL nguồn; không tải HTML Facebook, không dùng cookie/profile, không trích xuất hoặc sao chép nội dung và không tự xuất bản.
+
+Mỗi bản nháp có `source_name`, `source_url`, `source_published_on` (nếu admin tự nhập), `source_fingerprint` và `origin`. Các cột nội bộ như fingerprint, ID lượt chạy và `author_id` không nằm trong view `content_posts_public`. Khi admin tự hoàn thiện rồi chuyển trạng thái sang `published`, trang bài viết có thể hiển thị URL nguồn công khai để người đọc đối chiếu.
 
 Tài khoản quản trị đầu tiên sẽ được tạo trong Supabase Auth bằng email do chủ website kiểm soát, rồi được thêm một lần vào `admin_users` qua SQL hướng dẫn. Email được dùng hiện tại là `tatylic@gmail.com`; bạn có thể thay bằng email quản trị khác khi cấu hình.
