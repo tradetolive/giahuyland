@@ -499,6 +499,8 @@
   async function createFacebookSourceDraft(event) {
     event.preventDefault();
     if (!state.session) return;
+    // currentTarget chỉ hợp lệ trong vòng đời dispatch event; giữ tham chiếu trước các await.
+    const form = event.currentTarget;
     const button = $('#create-facebook-source-draft');
     button.disabled = true;
     setFacebookSourceStatus('Đang kiểm tra URL và tạo bản nháp…');
@@ -535,7 +537,7 @@
         if (/23505|duplicate key/i.test(error.message || '')) throw new Error('URL Facebook này đã có bản nháp hoặc bài viết trong dashboard.');
         throw error;
       }
-      event.currentTarget.reset();
+      form.reset();
       setFacebookSourceStatus('Đã tạo Bản nháp. Hãy mở bài trong danh sách để hoàn thiện nội dung, kiểm chứng và tự xuất bản khi sẵn sàng.', 'success');
       setStatus('Đã tạo bản nháp từ URL Facebook. Khách truy cập chưa thể xem bài này.', 'success');
       await loadContentPosts();
