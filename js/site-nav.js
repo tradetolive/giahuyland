@@ -46,6 +46,18 @@
     return '<a href="' + item.href + '" class="' + base + activeClass + '"' + current + '>' + item.label + '</a>';
   }
 
+  function contactButtons(mobile) {
+    var base = mobile
+      ? 'inline-flex flex-1 items-center justify-center gap-2 rounded-xl px-3 py-3 text-sm font-bold text-white transition hover:-translate-y-0.5'
+      : 'inline-flex h-10 items-center justify-center gap-1.5 rounded-full px-3 text-[11px] font-bold text-white shadow-sm transition hover:-translate-y-0.5';
+    var zaloClass = base + ' bg-[#0068ff] hover:bg-[#0054cc]';
+    var messengerClass = base + ' bg-[#1877f2] hover:bg-[#0d65d9]';
+    var iconSize = mobile ? 'h-5 w-5' : 'h-4 w-4';
+    var labelClass = mobile ? '' : ' hidden xl:inline';
+    return '<a href="https://zalo.me/0854141414" target="_blank" rel="noopener noreferrer" aria-label="Liên hệ Zalo 0854141414" class="' + zaloClass + '"><img src="https://cdn.simpleicons.org/zalo/ffffff" alt="" class="' + iconSize + ' shrink-0" width="20" height="20" loading="eager" decoding="async" /><span class="' + labelClass + '">Zalo</span>' + (mobile ? '<span>0854 141414</span>' : '') + '</a>' +
+      '<a href="https://www.facebook.com/anhladenhoi" target="_blank" rel="noopener noreferrer" aria-label="Mở Facebook Messenger GiaHuy Land" class="' + messengerClass + '"><img src="https://cdn.simpleicons.org/messenger/ffffff" alt="" class="' + iconSize + ' shrink-0" width="20" height="20" loading="eager" decoding="async" /><span class="' + labelClass + '">Messenger</span>' + (mobile ? '<span>Nhắn tin</span>' : '') + '</a>';
+  }
+
   function bindMobileMenu() {
     var toggle = document.getElementById('nav-toggle');
     var menu = document.getElementById('mobile-menu');
@@ -73,7 +85,8 @@
       '<div class="mx-auto flex min-h-[4.5rem] max-w-7xl items-center justify-between gap-4 px-5 sm:px-8">' +
         logoMarkup() +
         '<nav class="hidden items-center gap-0.5 lg:flex" aria-label="Điều hướng chính">' + items.map(function (item) { return linkMarkup(item, false); }).join('') + '</nav>' +
-        '<div class="flex items-center gap-2">' +
+          '<div class="flex items-center gap-1.5 sm:gap-2">' +
+          contactButtons(false) +
           '<a href="./bds-dang-ban.html" class="hidden rounded-full bg-clay px-4 py-2.5 text-xs font-bold text-cream shadow-sm transition hover:-translate-y-0.5 hover:bg-ink sm:inline-flex">Xem BĐS</a>' +
           '<button id="nav-toggle" type="button" aria-expanded="false" aria-controls="mobile-menu" aria-label="Mở menu điều hướng" class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-ink/5 text-ink transition hover:bg-forest/10 lg:hidden">' +
             '<svg class="h-5 w-5" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M3 5h14M3 10h14M3 15h14" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>' +
@@ -82,6 +95,7 @@
       '</div>' +
       '<div id="mobile-menu" class="hidden border-t border-ink/8 bg-cream px-5 pb-5 pt-3 shadow-sm lg:hidden" aria-label="Điều hướng di động">' +
         '<div class="grid gap-1">' + items.map(function (item) { return linkMarkup(item, true); }).join('') + '</div>' +
+        '<div class="mt-3 flex gap-2">' + contactButtons(true) + '</div>' +
         '<a href="./bds-dang-ban.html" class="mt-3 inline-flex w-full items-center justify-center rounded-xl bg-clay px-4 py-3 text-sm font-bold text-cream">Xem BĐS đang bán</a>' +
       '</div>';
     bindMobileMenu();

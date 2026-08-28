@@ -29,3 +29,7 @@ Bản sửa routing đã được mô phỏng trên local: với một bài `nav
 Form quản trị đã rút gọn còn một trường bắt buộc `Bài viết thuộc mục`; khi lưu, code tự ánh xạ category kỹ thuật theo navigation và giữ home_slot/display_order cũ cho bài đã tồn tại.
 
 Kiểm thử local sau bản sửa xác nhận vùng `#ha-long-xanh-posts` tồn tại và render các bài có `navigationSection='ha-long-xanh'`. Bài Hạ Long Xanh không còn xuất hiện trong danh sách của trang Phân tích thị trường.
+
+Production sau commit `ed663f2` đã xác nhận: form không còn `content-post-category`, `content-post-slot` hoặc `content-post-order`; chỉ còn trường bắt buộc `Bài viết thuộc mục` với các lựa chọn mới. Nút Zalo và Facebook Messenger vẫn trỏ đúng liên kết người dùng cung cấp. Workflow GitHub Pages run `33160637275` đã hoàn tất thành công.
+
+Kiểm thử header local sau khi nạp lại script không qua cache xác nhận cụm liên hệ mới hoạt động: desktop có nút Zalo và Messenger dạng icon + nhãn; mobile menu có phiên bản icon + số Zalo/nhãn Nhắn tin. Cả hai dùng SVG thương hiệu từ `cdn.simpleicons.org`, kích thước khai báo 20×20, với aria-label và URL đúng theo yêu cầu.
