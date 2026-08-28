@@ -1,44 +1,30 @@
-# Đánh giá tự động tạo bài viết nháp hằng ngày
+# Đánh giá nguồn bài viết và luồng tạo bản nháp
 
-## Mục tiêu khả thi
+## Phạm vi đã chốt
 
-Quy trình phù hợp cho GiaHuy Land là **mỗi ngày tạo tối đa một bản nháp** trong `content_posts`, lưu liên kết nguồn để quản trị viên kiểm chứng, rồi chỉ công khai khi quản trị viên đổi trạng thái sang `published`. Không để tác vụ hằng ngày tự xuất bản, tự tạo cam kết lợi nhuận, kết luận pháp lý cho một lô đất, hoặc sao chép toàn văn bài báo.
+GiaHuy Land dùng URL của từng bài Facebook do chủ website sở hữu hoặc có quyền sử dụng làm nguồn tham khảo. Dashboard tạo một `draft` có link nguồn; quản trị viên tự đọc bài gốc, biên tập nội dung và chỉ tự xuất bản sau khi kiểm chứng. Hệ thống không scrape profile, không dùng cookie, không tải/trích xuất/sao chép nội dung Facebook, không tự xuất bản và không tạo nhận định về giá, lợi nhuận hoặc pháp lý.
 
-## Kiến trúc đề xuất để đánh giá
+## Kiến trúc triển khai
 
-| Thành phần | Vai trò | Nguyên tắc an toàn |
+| Thành phần | Vai trò | Kiểm soát an toàn |
 |---|---|---|
-| Workflow GitHub chạy hằng ngày | Kích hoạt vào khung giờ đã chọn, tải RSS/API/HTML công khai từ allowlist. | Không scrape trang đăng tin cá nhân, trang trả phí, dữ liệu sau đăng nhập hoặc website cấm truy cập tự động. |
-| Script Node.js không phụ thuộc package nặng | Lọc nguồn, chống trùng URL/tựa đề, chuẩn hóa trích dẫn và chuẩn bị payload. | Chỉ gửi thông tin đã truy vết được đến bước soạn nháp. |
-| AI tùy chọn | Tóm tắt/sáng tác góc nhìn biên tập dựa trên nguồn đã chọn. | Luôn gắn URL nguồn, cấm dự báo giá/lợi nhuận, cấm coi đây là tư vấn pháp lý; bắt buộc human review. |
-| Supabase `content_posts` | Lưu tiêu đề, tóm tắt, nội dung, URL nguồn, hash chống trùng và trạng thái `draft`. | Không dùng publishable key để ghi tự động. Khóa có quyền ghi chỉ ở GitHub Actions secret, không ở website/client source. |
-| Dashboard hiện có | Chủ website review, sửa, chọn ảnh marketing và xuất bản. | Trạng thái mặc định luôn `draft`; chỉ admin được chuyển `published`. |
+| Form URL Facebook trong dashboard | Nhận permalink bài/reel Facebook cụ thể, tiêu đề và ghi chú tùy chọn. | Chỉ nhận URL HTTPS trên Facebook; từ chối URL profile `anhladenhoi` hoặc URL không có định danh bài. |
+| Xác nhận quyền sử dụng | Quản trị viên tích xác nhận trước khi tạo. | Chỉ dùng nội dung thuộc quyền sở hữu hoặc quyền sử dụng của chủ website. |
+| Tạo skeleton draft | Lưu URL nguồn, tên nguồn, fingerprint chống trùng và `status = draft`. | Không lấy hay sao chép nội dung Facebook; khách truy cập không thấy bản nháp. |
+| `content_posts_public` | Hiển thị bài đã xuất bản và URL nguồn để độc giả đối chiếu. | Không gồm `author_id`, fingerprint hoặc dữ liệu quản trị nội bộ. |
+| Quản trị viên | Hoàn thiện nội dung, loại bỏ dữ liệu nhạy cảm và tự đổi trạng thái xuất bản. | Human review là bắt buộc; không có tác vụ tự xuất bản. |
 
-## Nguồn nội dung nên ưu tiên
+## Lý do không tự động đọc Facebook profile
 
-Nguồn nên giới hạn bằng allowlist, bắt đầu bằng cổng thông tin Chính phủ/Bộ/Xây dựng địa phương hoặc cơ quan nhà nước có thẩm quyền liên quan tới quy hoạch, hạ tầng và hướng dẫn thủ tục. Nội dung đưa vào bản nháp cần chuyển thành thông tin tổng quan, liên kết tới nguồn gốc và ghi rõ ngày nguồn công bố. Không coi nội dung bên thứ ba về “bản đồ quy hoạch”, giá rao bán hoặc dự báo tăng giá là dữ liệu xác thực để đăng tự động.
+Meta mô tả endpoint User Posts yêu cầu user access token và quyền `user_posts`; endpoint chỉ trả bài do app user tạo hoặc các bài được gắn thẻ.[1] Điều này đòi hỏi Meta App, luồng Facebook Login và quản lý token; token người dùng không có tính vĩnh viễn.[2] Để giữ luồng vận hành đơn giản, zero-cost và không phụ thuộc vào cơ chế thu thập profile cá nhân, GiaHuy Land không dùng API này trong phạm vi hiện tại.
 
-Một ví dụ nguồn chính thống là Cổng thông tin điện tử Sở Xây dựng Quảng Ninh, xác định cơ quan chủ quản là UBND tỉnh Quảng Ninh.[1] Tuy nhiên, từng URL/tin phải được script kiểm tra phản hồi hợp lệ và dùng dữ liệu công khai thật; URL lỗi hoặc nội dung thiếu bối cảnh phải bị loại.
+> Không sử dụng crawler HTML, cookie trình duyệt, dữ liệu sau đăng nhập hoặc tự động hóa giao diện Facebook. Các cách này không phải cơ chế cấp quyền chính thức và dễ mất ổn định khi nền tảng thay đổi.
 
-Trang RSS của Quảng Ninh Portal công bố chuyên mục “Thông tin quy hoạch” và điều khoản yêu cầu cung cấp rõ thông tin cần thiết khi sử dụng kênh.[5] URL feed được hiển thị cần được kiểm tra thực tế ở thời điểm chạy: lần kiểm tra `27-08-2026` với một URL được suy diễn từ trang trả HTTP 404. Vì vậy, chưa đưa URL này vào allowlist chạy tự động; workflow sẽ chỉ nhận feed có HTTP 200 và XML RSS/Atom hợp lệ.
+## Quy tắc biên tập trước xuất bản
 
-Trang tin công khai của Quảng Ninh Portal tại `https://www.quangninh.gov.vn/Trang/tin-tuc-su-kien.aspx` trả HTTP 200 và có các liên kết bài viết chuẩn dạng `/Trang/ChiTietTinTuc.aspx?nid=<id>`. Một bài kiểm tra ngày 27/08/2026 về khởi công công trình trong tỉnh có tiêu đề, ngày xuất bản và phần dẫn nguồn rõ ràng; bài cũng nhắc Khu kinh tế ven biển Quảng Yên.[6] Workflow có thể dùng trang danh mục này làm cơ chế phát hiện ban đầu, nhưng phải áp dụng bộ lọc tiêu đề/nội dung cho các chủ đề quy hoạch, hạ tầng, xây dựng, khu kinh tế và Quảng Yên/Hà An; mọi tin ngoài phạm vi hoặc thiếu ngày/URL chuẩn đều bị bỏ qua.
-
-Để tránh tạo nội dung sai ngữ cảnh, bản nháp tự động chỉ chứa thông tin trích dẫn tối thiểu: tiêu đề nguồn, ngày nguồn công bố, cơ quan nguồn, URL gốc và một ghi chú biên tập yêu cầu đối chiếu. Không tự suy diễn mức ảnh hưởng đến giá đất, lợi nhuận hoặc pháp lý của bất động sản.
-
-## Giới hạn vận hành GitHub
-
-GitHub Actions hỗ trợ chạy workflow theo lịch bằng cron UTC.[2] Workflow định kỳ trong repository public có thể bị GitHub tự vô hiệu nếu repository không có hoạt động trong 60 ngày; chủ website cần kiểm tra tab Actions định kỳ và bật lại khi cần.[3] Các khóa dùng trong workflow cần được lưu ở GitHub Actions Secrets, không ghi vào workflow/source code hoặc log.[4]
-
-## Phương án chưa phù hợp
-
-Không chạy bằng trình duyệt của chủ website, không dùng tài khoản Zalo/Messenger, không tự động công bố bài chưa duyệt, không dùng khóa `service_role` ở frontend và không dùng schedule tác vụ AI tiêu hao credit như một giải pháp “miễn phí hoàn toàn”.
+Sau khi tạo draft, quản trị viên phải mở URL nguồn, kiểm tra tính chính xác, viết lại nội dung theo ngữ cảnh website, xóa thông tin cá nhân/ảnh giấy tờ và thêm ảnh marketing phù hợp nếu cần. Chỉ khi nội dung không tạo cam kết đầu tư, không khẳng định pháp lý chưa được xác minh và phù hợp chính sách của GiaHuy Land, quản trị viên mới đổi trạng thái thành `published`.
 
 ## References
 
-[1]: https://www.quangninh.gov.vn/So/soxaydung "Cổng thông tin điện tử Sở Xây dựng Quảng Ninh"
-[2]: https://docs.github.com/en/actions/writing-workflows/choosing-when-your-workflow-runs/events-that-trigger-workflows "GitHub Docs — Events that trigger workflows"
-[3]: https://docs.github.com/en/actions/managing-workflow-runs/disabling-and-enabling-a-workflow "GitHub Docs — Disabling and enabling a workflow"
-[4]: https://docs.github.com/en/actions/security-for-github-actions/security-guides/using-secrets-in-github-actions "GitHub Docs — Using secrets in GitHub Actions"
-[5]: https://www.quangninh.gov.vn/so/sothongtinTT/Trang/Qnp-rss.aspx "Cổng thông tin Quảng Ninh — Kênh thông tin RSS"
-[6]: https://www.quangninh.gov.vn/Trang/ChiTietTinTuc.aspx?nid=168658 "Cổng thông tin Quảng Ninh — Các đồng chí lãnh đạo tỉnh dự khánh thành, khởi công các công trình chào mừng thành phố Quảng Ninh"
+[1]: https://developers.facebook.com/docs/graph-api/reference/user/posts/ "Meta for Developers — User Posts"
+[2]: https://developers.facebook.com/documentation/facebook-login/guides/access-tokens "Meta for Developers — Access Tokens"

@@ -32,10 +32,10 @@ Các nút Zalo/Messenger sao chép trước tên listing và URL chi tiết, r�
 
 Website public chỉ gọi view `content_posts_public`, vốn đã cố định điều kiện `status = 'published'` và không chọn `author_id`. Truy cập anonymous vào bảng gốc `content_posts` bị từ chối. Bản nháp và slug sai không trả về nội dung. Ảnh cover tái sử dụng bucket `property-media` có policy quản trị đã có; không sử dụng `property-documents` để chứa ảnh bài viết.
 
-### Bản nháp nguồn nhà nước hằng ngày
+### Bản nháp từ URL Facebook do quản trị viên nhập
 
-Workflow `.github/workflows/create-daily-editorial-draft.yml` chạy lúc **00:00 UTC (07:00 giờ Việt Nam)**, chỉ lấy tin từ allowlist Cổng thông tin điện tử tỉnh Quảng Ninh. Script chỉ xem xét URL HTTPS trên host đã định, liên kết bài viết hợp lệ và các chủ đề quy hoạch, hạ tầng, xây dựng, đô thị, khu kinh tế hoặc Quảng Yên/Hà An. Nó tạo tối đa một `draft` với `origin = daily-source`, URL nguồn, tên nguồn, ngày nguồn, `source_fingerprint` chống trùng và ID lần chạy.
+Dashboard có biểu mẫu **Bản nháp từ bài Facebook của bạn**. Quản trị viên dán URL HTTPS của một bài/reel/permalink Facebook cụ thể, xác nhận quyền sở hữu hoặc quyền sử dụng và có thể thêm tiêu đề/ghi chú. Website chỉ chuẩn hóa URL, tạo `source_fingerprint` chống trùng trong trình duyệt và lưu một bài `draft` với URL nguồn; không tải HTML Facebook, không dùng cookie/profile, không trích xuất hoặc sao chép nội dung và không tự xuất bản.
 
-Workflow không tự xuất bản và không dùng publishable key để ghi. `SUPABASE_SERVICE_ROLE_KEY` chỉ được cung cấp vào runner từ GitHub Actions Secrets; không xuất hiện trong source code, log, trình duyệt hoặc Supabase client. Nếu secret chưa có, lần chạy theo lịch kết thúc ở trạng thái bỏ qua an toàn. Dashboard hiển thị nhãn bản nháp tự động và nguồn để admin kiểm chứng; một bài chỉ có thể xuất hiện public khi admin tự chuyển sang `published`.
+Mỗi bản nháp có `source_name`, `source_url`, `source_published_on` (nếu admin tự nhập), `source_fingerprint` và `origin`. Các cột nội bộ như fingerprint, ID lượt chạy và `author_id` không nằm trong view `content_posts_public`. Khi admin tự hoàn thiện rồi chuyển trạng thái sang `published`, trang bài viết có thể hiển thị URL nguồn công khai để người đọc đối chiếu.
 
 Tài khoản quản trị đầu tiên sẽ được tạo trong Supabase Auth bằng email do chủ website kiểm soát, rồi được thêm một lần vào `admin_users` qua SQL hướng dẫn. Email được dùng hiện tại là `tatylic@gmail.com`; bạn có thể thay bằng email quản trị khác khi cấu hình.

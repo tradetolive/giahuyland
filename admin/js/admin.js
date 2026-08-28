@@ -38,10 +38,42 @@
     node.className = `mt-4 text-sm ${type === 'error' ? 'text-red-600' : type === 'success' ? 'text-emerald-700' : 'text-slate-600'}`;
   }
 
+  function setFacebookSourceStatus(message, type = 'neutral') {
+    const node = $('#facebook-source-draft-status');
+    node.textContent = message;
+    node.className = `text-sm ${type === 'error' ? 'text-red-700' : type === 'success' ? 'text-emerald-700' : 'text-slate-600'}`;
+  }
+
   function slugify(value) {
     return value.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
       .toLowerCase().trim().replace(/đ/g, 'd')
       .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 90);
+  }
+
+  function normalizeFacebookPostUrl(rawUrl) {
+    let parsed;
+    try {
+      parsed = new URL(String(rawUrl || '').trim());
+    } catch {
+      throw new Error('URL Facebook không hợp lệ.');
+    }
+    const host = parsed.hostname.toLowerCase();
+    const isFacebookHost = host === 'facebook.com' || host.endsWith('.facebook.com') || host === 'fb.watch';
+    if (parsed.protocol !== 'https:' || !isFacebookHost) throw new Error('Chỉ chấp nhận liên kết HTTPS của Facebook.');
+    const pathname = parsed.pathname.replace(/\/+$/, '') || '/';
+    const isProfileOnly = /^\/anhladenhoi$/i.test(pathname) && !parsed.search;
+    const isRootOnly = pathname === '/' && !parsed.search;
+    if (isProfileOnly || isRootOnly) throw new Error('Hãy dán URL của một bài đăng cụ thể, không dùng link profile Facebook.');
+    const hasPostIdentity = /\/(posts|permalink|reel|share)\//i.test(pathname) || /(?:story_fbid|fbid|post_id|v)=/i.test(parsed.search) || host === 'fb.watch';
+    if (!hasPostIdentity) throw new Error('Liên kết cần dẫn tới bài đăng, reel hoặc permalink Facebook cụ thể.');
+    parsed.hash = '';
+    return parsed.href;
+  }
+
+  async function sourceFingerprint(url) {
+    if (!window.crypto?.subtle) throw new Error('Trình duyệt không hỗ trợ tạo mã chống trùng. Hãy dùng trình duyệt hiện đại qua HTTPS.');
+    const digest = await window.crypto.subtle.digest('SHA-256', new TextEncoder().encode(url));
+    return Array.from(new Uint8Array(digest)).map((byte) => byte.toString(16).padStart(2, '0')).join('');
   }
 
   function extensionFromFile(file) {
@@ -147,6 +179,9 @@
     const automationNote = $('#content-post-automation-note');
     if (post.origin === 'daily-source') {
       automationNote.textContent = `Bản nháp tự động từ nguồn nhà nước${post.automation_run_id ? ` · lượt chạy ${post.automation_run_id}` : ''}. Hãy đối chiếu URL và nội dung trước khi xuất bản.`;
+      automationNote.hidden = false;
+    } else if (/facebook/i.test(post.source_name || '') || /(^|\.)facebook\.com|fb\.watch/i.test(post.source_url || '')) {
+      automationNote.textContent = 'Bản nháp từ URL Facebook do quản trị viên cung cấp. Website không tự tải hoặc sao chép nội dung nguồn; hãy tự hoàn thiện và kiểm chứng trước khi xuất bản.';
       automationNote.hidden = false;
     } else {
       automationNote.hidden = true;
@@ -265,7 +300,7 @@
       const sourceLink = post.source_url && /^https:\/\//i.test(post.source_url)
         ? `<a href="${escapeHtml(post.source_url)}" target="_blank" rel="noopener noreferrer" class="font-semibold text-forest underline decoration-forest/25 underline-offset-4 hover:decoration-forest">Mở nguồn</a>`
         : '';
-      const originLabel = post.origin === 'daily-source' ? ' · Tạo tự động' : '';
+      const originLabel = post.origin === 'daily-source' ? ' · Tạo tự động' : (/facebook/i.test(post.source_name || '') ? ' · Nguồn Facebook' : '');
       return `<article class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
         <div class="flex items-start justify-between gap-4"><div><p class="text-xs font-bold uppercase tracking-[0.14em] text-slate-400">${escapeHtml(categoryLabel(post.category))}</p><h4 class="mt-1 font-semibold text-slate-900">${escapeHtml(post.title)}</h4><p class="mt-1 text-sm text-slate-500">${escapeHtml(homeSlotLabel(post.home_slot))} · Thứ tự ${Number(post.display_order || 0)}${originLabel}</p></div><span class="shrink-0 rounded-full border px-2.5 py-1 text-xs font-semibold ${statusClass}">${isPublished ? 'Đã xuất bản' : 'Bản nháp'}</span></div>
         <p class="mt-3 line-clamp-2 text-sm leading-6 text-slate-600">${escapeHtml(post.excerpt || 'Chưa có tóm tắt.')}</p>
@@ -457,6 +492,60 @@
     }
   }
 
+  /**
+   * Tạo skeleton draft từ URL Facebook do admin tự cung cấp.
+   * Không fetch, không scrape và không sao chép nội dung Facebook; chỉ lưu URL làm nguồn.
+   */
+  async function createFacebookSourceDraft(event) {
+    event.preventDefault();
+    if (!state.session) return;
+    const button = $('#create-facebook-source-draft');
+    button.disabled = true;
+    setFacebookSourceStatus('Đang kiểm tra URL và tạo bản nháp…');
+    try {
+      if (!$('#facebook-source-ownership').checked) throw new Error('Bạn cần xác nhận quyền sử dụng bài đăng trước khi tạo bản nháp.');
+      const url = normalizeFacebookPostUrl($('#facebook-source-url').value);
+      const fingerprint = await sourceFingerprint(url);
+      const customTitle = $('#facebook-draft-title').value.trim();
+      const note = $('#facebook-draft-note').value.trim();
+      const shortId = fingerprint.slice(0, 10);
+      const title = customTitle || `Bản nháp từ bài Facebook ${shortId}`;
+      const payload = {
+        id: crypto.randomUUID(),
+        slug: `${slugify(title).slice(0, 72).replace(/-+$/g, '')}-${shortId}`,
+        title,
+        eyebrow: 'Nguồn Facebook do quản trị viên cung cấp',
+        excerpt: note || 'Bản nháp được tạo từ URL Facebook do quản trị viên cung cấp. Hãy đọc bài gốc, hoàn thiện nội dung và kiểm chứng trước khi xuất bản.',
+        body: `Bản nháp này được tạo từ URL Facebook do quản trị viên cung cấp. Website không tự tải, trích xuất hoặc sao chép nội dung Facebook.\n\nNguồn gốc: ${url}\n\nGhi chú biên tập: ${note || 'Đọc bài gốc, xác thực thông tin, loại bỏ dữ liệu cá nhân/giấy tờ nhạy cảm và hoàn thiện nội dung trước khi xuất bản.'}\n\nKhông coi nội dung này là tư vấn đầu tư, cam kết lợi nhuận hoặc xác nhận pháp lý cho bất kỳ bất động sản nào.`,
+        category: 'market-update',
+        home_slot: null,
+        display_order: 1000,
+        status: 'draft',
+        cover_image_path: null,
+        author_id: state.session.user.id,
+        source_name: 'Facebook — bài đăng do quản trị viên cung cấp',
+        source_url: url,
+        source_published_on: null,
+        source_fingerprint: fingerprint,
+        origin: 'manual',
+        automation_run_id: null,
+      };
+      const { error } = await supabaseClient.from('content_posts').insert(payload);
+      if (error) {
+        if (/23505|duplicate key/i.test(error.message || '')) throw new Error('URL Facebook này đã có bản nháp hoặc bài viết trong dashboard.');
+        throw error;
+      }
+      event.currentTarget.reset();
+      setFacebookSourceStatus('Đã tạo Bản nháp. Hãy mở bài trong danh sách để hoàn thiện nội dung, kiểm chứng và tự xuất bản khi sẵn sàng.', 'success');
+      setStatus('Đã tạo bản nháp từ URL Facebook. Khách truy cập chưa thể xem bài này.', 'success');
+      await loadContentPosts();
+    } catch (error) {
+      setFacebookSourceStatus(`Không thể tạo bản nháp: ${error.message || 'Lỗi không xác định.'}`, 'error');
+    } finally {
+      button.disabled = false;
+    }
+  }
+
   async function deleteListing(listingId) {
     const listing = state.listings.find((item) => item.id === listingId);
     if (!listing || !window.confirm(`Xóa “${listing.title}”? Ảnh đã tải cũng sẽ được dọn nếu có thể.`)) return;
@@ -581,6 +670,7 @@
     $('#forgot-password-button').addEventListener('click', requestPasswordRecovery);
     $('#listing-form').addEventListener('submit', saveListing);
     $('#content-post-form').addEventListener('submit', saveContentPost);
+    $('#facebook-source-draft-form').addEventListener('submit', createFacebookSourceDraft);
     // Giữ xác thực HTML5, đồng thời hiển thị lỗi trong vùng trạng thái dễ nhận thấy.
     $('#listing-form').addEventListener('invalid', (event) => {
       const field = event.target;

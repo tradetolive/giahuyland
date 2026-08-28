@@ -1,6 +1,7 @@
--- GiaHuy Land: metadata truy vết nguồn cho bản nháp tạo tự động.
+-- GiaHuy Land: metadata truy vết nguồn cho bài viết có dẫn nguồn.
 -- Chạy trong Supabase SQL Editor bằng tài khoản project owner sau khi review.
 -- Không thay đổi RLS, không mở public write và không thay đổi trạng thái bài hiện có.
+-- Dùng cho URL Facebook do quản trị viên tự nhập, không dùng để crawl hay tự động tạo bài.
 
 alter table public.content_posts
   add column if not exists source_name text check (char_length(source_name) <= 180),
