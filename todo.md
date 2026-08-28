@@ -82,4 +82,6 @@
 - [x] Thêm biểu mẫu “Tạo bản nháp từ URL Facebook” cho host Facebook hợp lệ và link bài viết cụ thể.
 - [x] Tạo draft chứa URL/tên nguồn, đánh dấu nguồn Facebook và chặn trùng URL mà không tải hoặc sao chép nội dung Facebook.
 - [x] Gỡ workflow và script nguồn nhà nước chưa kích hoạt; đổi tên migration đã chạy thành `20260827_content_post_source_metadata.sql` để phản ánh truy vết nguồn chung.
-- [ ] Kiểm thử URL hợp lệ/không hợp lệ/trùng, trạng thái draft-only và hướng dẫn admin hoàn thiện bài trước xuất bản.
+- [x] Kiểm thử mã: URL chỉ chấp nhận HTTPS Facebook có định danh bài; profile/URL không có định danh bị từ chối; fingerprint SHA-256 tạo tại trình duyệt; payload luôn là `draft` và không có fetch/crawl nguồn.
+- [x] Kiểm thử quyền public: POST anonymous vào `content_posts` trả HTTP 401. Không tạo dữ liệu thử bằng admin trước khi chủ website tự chọn URL bài thực tế.
+- [ ] Chủ website tạo thử một draft bằng URL bài Facebook thực tế sau deploy, kiểm tra chặn trùng và hoàn thiện nội dung trước xuất bản.
