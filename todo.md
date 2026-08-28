@@ -93,3 +93,18 @@
 - [x] Tái hiện lỗi `Cannot read properties of null (reading 'reset')`: `event.currentTarget` bị browser xóa sau lệnh `await` trong hàm async, sau khi insert đã trả về thành công.
 - [x] Sửa điểm reset form để giữ tham chiếu `form` trước thao tác async, không phụ thuộc `event.currentTarget` sau `await`.
 - [ ] Kiểm thử URL Facebook thực tế, chặn trùng và xác minh bài chỉ ở trạng thái `draft` trước khi xin xác nhận deploy bản sửa.
+
+## Lấy nội dung đầy đủ từ bài Facebook do chủ website kiểm soát
+
+- [ ] Xác minh cách chính thức để lấy `message` và metadata từ bài Facebook cá nhân theo URL do chủ website cung cấp.
+- [ ] So sánh Meta Graph API có cấp quyền với phương án người dùng chủ động nhập/nạp nội dung, bao gồm chi phí và độ ổn định.
+- [ ] Chỉ triển khai sau khi chủ website chọn phương án quyền truy cập; không scrape profile, cookie hoặc dữ liệu sau đăng nhập.
+
+## Trợ lý dán nội dung Facebook vào bản nháp
+
+- [x] Thiết kế quy tắc chọn dòng đầu có ý nghĩa làm tiêu đề, tạo tóm tắt tối đa 260 ký tự và giữ nguyên phần nội dung do admin dán.
+- [x] Bổ sung vùng dán nội dung và nút điền vào form bài viết, không tự lưu hoặc tự xuất bản.
+- [x] Kiểm thử parser với nội dung nhiều dòng, tiêu đề tùy chọn và dữ liệu rỗng; body giữ nguyên nội dung đã dán, tóm tắt có giới hạn 260 ký tự, slug tạo từ title và payload luôn `draft`.
+- [ ] Chủ website tạo thử một draft bằng nội dung bài Facebook thực tế sau deploy, kiểm tra title/excerpt/body, chặn trùng URL và chỉnh sửa trước xuất bản.
+
+> Hành vi trợ lý: xử lý nội dung do admin chủ động dán tại client-side; không gọi Facebook/API, không lưu tự động, không xuất bản tự động và luôn mở form bài viết để admin kiểm tra trước khi có thao tác lưu.

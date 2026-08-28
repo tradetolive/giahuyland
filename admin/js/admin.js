@@ -76,6 +76,31 @@
     return Array.from(new Uint8Array(digest)).map((byte) => byte.toString(16).padStart(2, '0')).join('');
   }
 
+  function compactText(value) {
+    return String(value || '').replace(/\r\n?/g, '\n').replace(/[\t ]+/g, ' ').replace(/\n{3,}/g, '\n\n').trim();
+  }
+
+  function clippedExcerpt(value, limit = 260) {
+    const plain = compactText(value).replace(/\n+/g, ' ');
+    if (plain.length <= limit) return plain;
+    const cut = plain.slice(0, limit + 1).lastIndexOf(' ');
+    return `${plain.slice(0, cut > 100 ? cut : limit).trim()}…`;
+  }
+
+  /** Chỉ phân tách phần text do admin dán, không gọi Facebook/API hay tự lưu dữ liệu. */
+  function fieldsFromFacebookPaste(raw, customTitle = '') {
+    const content = compactText(raw);
+    if (!content) throw new Error('Hãy dán nội dung bài Facebook trước khi tạo bản nháp.');
+    const lines = content.split('\n').map((line) => line.trim()).filter(Boolean);
+    const fallbackTitle = lines.find((line) => line.length >= 8) || 'Bản nháp từ bài Facebook';
+    const requestedTitle = compactText(customTitle) || fallbackTitle;
+    return {
+      title: requestedTitle.length > 140 ? clippedExcerpt(requestedTitle, 140).replace(/…$/, '') : requestedTitle,
+      excerpt: clippedExcerpt(content),
+      body: content,
+    };
+  }
+
   function extensionFromFile(file) {
     const extension = file.name.split('.').pop().toLowerCase();
     return /^[a-z0-9]{2,5}$/.test(extension) ? extension : 'bin';
@@ -114,6 +139,7 @@
     state.editingContentPost = null;
     $('#content-post-form').reset();
     $('#content-post-id').value = '';
+    $('#content-post-source-fingerprint').value = '';
     $('#content-post-order').value = '100';
     $('#content-post-form-title').textContent = 'Tạo bài viết mới';
     $('#save-content-post-label').textContent = 'Lưu bài viết';
@@ -170,6 +196,7 @@
     $('#content-post-source-name').value = post.source_name || '';
     $('#content-post-source-url').value = post.source_url || '';
     $('#content-post-source-date').value = post.source_published_on || '';
+    $('#content-post-source-fingerprint').value = post.source_fingerprint || '';
     $('#content-post-form-title').textContent = `Chỉnh sửa: ${post.title}`;
     $('#save-content-post-label').textContent = 'Lưu thay đổi';
     $('#cancel-content-post-edit').hidden = false;
@@ -462,7 +489,7 @@
         source_name: $('#content-post-source-name').value.trim() || null,
         source_url: sourceUrl || null,
         source_published_on: $('#content-post-source-date').value || null,
-        source_fingerprint: state.editingContentPost?.source_url === sourceUrl ? state.editingContentPost.source_fingerprint || null : null,
+        source_fingerprint: $('#content-post-source-fingerprint').value || (state.editingContentPost?.source_url === sourceUrl ? state.editingContentPost.source_fingerprint || null : null),
         origin: state.editingContentPost?.source_url === sourceUrl ? state.editingContentPost?.origin || 'manual' : 'manual',
         automation_run_id: state.editingContentPost?.source_url === sourceUrl ? state.editingContentPost?.automation_run_id || null : null,
       };
@@ -493,8 +520,8 @@
   }
 
   /**
-   * Tạo skeleton draft từ URL Facebook do admin tự cung cấp.
-   * Không fetch, không scrape và không sao chép nội dung Facebook; chỉ lưu URL làm nguồn.
+   * Tạo draft từ URL và phần text do admin tự dán.
+   * Không fetch, không scrape và không sao chép nội dung trực tiếp từ Facebook.
    */
   async function createFacebookSourceDraft(event) {
     event.preventDefault();
@@ -509,16 +536,15 @@
       const url = normalizeFacebookPostUrl($('#facebook-source-url').value);
       const fingerprint = await sourceFingerprint(url);
       const customTitle = $('#facebook-draft-title').value.trim();
-      const note = $('#facebook-draft-note').value.trim();
       const shortId = fingerprint.slice(0, 10);
-      const title = customTitle || `Bản nháp từ bài Facebook ${shortId}`;
+      const fields = fieldsFromFacebookPaste($('#facebook-source-content').value, customTitle);
       const payload = {
         id: crypto.randomUUID(),
-        slug: `${slugify(title).slice(0, 72).replace(/-+$/g, '')}-${shortId}`,
-        title,
+        slug: `${slugify(fields.title).slice(0, 72).replace(/-+$/g, '')}-${shortId}`,
+        title: fields.title,
         eyebrow: 'Nguồn Facebook do quản trị viên cung cấp',
-        excerpt: note || 'Bản nháp được tạo từ URL Facebook do quản trị viên cung cấp. Hãy đọc bài gốc, hoàn thiện nội dung và kiểm chứng trước khi xuất bản.',
-        body: `Bản nháp này được tạo từ URL Facebook do quản trị viên cung cấp. Website không tự tải, trích xuất hoặc sao chép nội dung Facebook.\n\nNguồn gốc: ${url}\n\nGhi chú biên tập: ${note || 'Đọc bài gốc, xác thực thông tin, loại bỏ dữ liệu cá nhân/giấy tờ nhạy cảm và hoàn thiện nội dung trước khi xuất bản.'}\n\nKhông coi nội dung này là tư vấn đầu tư, cam kết lợi nhuận hoặc xác nhận pháp lý cho bất kỳ bất động sản nào.`,
+        excerpt: fields.excerpt,
+        body: fields.body,
         category: 'market-update',
         home_slot: null,
         display_order: 1000,
@@ -538,8 +564,8 @@
         throw error;
       }
       form.reset();
-      setFacebookSourceStatus('Đã tạo Bản nháp. Hãy mở bài trong danh sách để hoàn thiện nội dung, kiểm chứng và tự xuất bản khi sẵn sàng.', 'success');
-      setStatus('Đã tạo bản nháp từ URL Facebook. Khách truy cập chưa thể xem bài này.', 'success');
+      setFacebookSourceStatus('Đã tạo Bản nháp từ nội dung bạn dán. Bạn có thể mở bài trong danh sách để chỉnh sửa và kiểm chứng trước khi xuất bản.', 'success');
+      setStatus('Đã tạo bản nháp từ URL Facebook và nội dung bạn dán. Khách truy cập chưa thể xem bài này.', 'success');
       await loadContentPosts();
     } catch (error) {
       setFacebookSourceStatus(`Không thể tạo bản nháp: ${error.message || 'Lỗi không xác định.'}`, 'error');
