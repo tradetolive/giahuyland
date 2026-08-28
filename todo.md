@@ -87,3 +87,9 @@
 - [ ] Chủ website tạo thử một draft bằng URL bài Facebook thực tế sau deploy, kiểm tra chặn trùng và hoàn thiện nội dung trước xuất bản.
 
 > Sửa copy production bổ sung: đổi mô tả “Bản nháp tạo hằng ngày” thành “Bản nháp có dẫn nguồn” để phản ánh đúng luồng Facebook thủ công.
+
+## Sửa lỗi tạo bản nháp từ URL Facebook
+
+- [x] Tái hiện lỗi `Cannot read properties of null (reading 'reset')`: `event.currentTarget` bị browser xóa sau lệnh `await` trong hàm async, sau khi insert đã trả về thành công.
+- [x] Sửa điểm reset form để giữ tham chiếu `form` trước thao tác async, không phụ thuộc `event.currentTarget` sau `await`.
+- [ ] Kiểm thử URL Facebook thực tế, chặn trùng và xác minh bài chỉ ở trạng thái `draft` trước khi xin xác nhận deploy bản sửa.
