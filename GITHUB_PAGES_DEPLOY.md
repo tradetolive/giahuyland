@@ -54,9 +54,10 @@ Tính năng này không dùng Meta App, token, crawler, cookie hoặc workflow h
 1. Nếu chưa chạy trước đó, chạy migration `supabase/migrations/20260827_content_post_source_metadata.sql` trong **Supabase → SQL Editor**. Migration chỉ thêm metadata nguồn và index chống trùng URL vào `content_posts`; không thay đổi RLS hoặc trạng thái bài hiện có.
 2. Mở `/admin/`, đăng nhập và tới mục **Bản nháp từ bài Facebook của bạn**.
 3. Dán URL HTTPS của **một bài đăng, reel hoặc permalink cụ thể**. Link profile như `https://www.facebook.com/anhladenhoi` sẽ bị từ chối để tránh nhầm nguồn.
-4. Nhập tiêu đề/ghi chú nếu cần, đọc kỹ xác nhận quyền sử dụng và tích chọn trước khi tạo. Hệ thống chỉ lưu URL nguồn và một skeleton `draft`; không sao chép bài Facebook.
-5. Mở bài vừa tạo trong danh sách, đọc bài gốc, hoàn thiện nội dung, loại bỏ dữ liệu cá nhân/giấy tờ nhạy cảm và kiểm chứng mọi nhận định về giá, quy hoạch hoặc pháp lý. Chỉ sau đó bạn mới tự đổi trạng thái thành **Xuất bản**.
-6. Không dùng lại cùng một URL: dashboard chặn URL trùng dựa trên fingerprint để tránh tạo hai bản nháp từ một nguồn.
+4. Sao chép nội dung của bài Facebook do bạn sở hữu/quyền sử dụng, dán vào ô **Nội dung bài Facebook do bạn sao chép** rồi bấm **Điền vào bài viết**. Trợ lý chỉ dùng nội dung bạn đã dán: dòng đầu có ý nghĩa điền tiêu đề, đoạn đầu tạo tóm tắt và phần còn lại điền nội dung. Thao tác này chưa lưu dữ liệu.
+5. Kiểm tra/chỉnh sửa các trường trong form bài viết bên dưới, đọc kỹ xác nhận quyền sử dụng rồi bấm **Tạo bản nháp từ URL**. Hệ thống lưu URL nguồn và một `draft`; không tự lấy hay sao chép dữ liệu trực tiếp từ Facebook.
+6. Mở bài vừa tạo trong danh sách, loại bỏ dữ liệu cá nhân/giấy tờ nhạy cảm và kiểm chứng mọi nhận định về giá, quy hoạch hoặc pháp lý. Chỉ sau đó bạn mới tự đổi trạng thái thành **Xuất bản**.
+7. Không dùng lại cùng một URL: dashboard chặn URL trùng dựa trên fingerprint để tránh tạo hai bản nháp từ một nguồn.
 
 > Khi một bài đã xuất bản có URL nguồn, website sẽ hiển thị nguồn tham khảo ở cuối trang để độc giả có thể đối chiếu. Chỉ dùng nội dung bạn có quyền sử dụng; không tự nhập hoặc đăng lại nội dung của bên thứ ba khi chưa có quyền phù hợp.
 
